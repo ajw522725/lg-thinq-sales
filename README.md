@@ -4,6 +4,17 @@ LG ThinQ-Sales는 VOC, SNS, 공공·외부 데이터를 통합 수집·분석하
 
 이번 구현은 Phase 0 + Phase 1 기반 구축입니다. 실제 크롤링, 실제 LLM API, 실제 외부 API 연동보다 먼저 로컬에서 실행 가능한 MVP 골격과 demo mode 기반 end-to-end 흐름을 제공합니다.
 
+## 협업 역할분담
+
+팀원과 각자의 로컬 AI 에이전트는 작업 전 루트의 `AGENTS.md`와 `docs/TEAM_ROLES.md`를 먼저 확인하세요.
+
+| GitHub ID | 역할 | 주 담당 영역 |
+|---|---|---|
+| `ajw522725` | 총책임 / PM / Backend Integration Lead | 전체 아키텍처, API 계약, DB, Docker, 통합 테스트 |
+| `wldnjsrla085` | Data Collection / Dataset Lead | VOC/SNS 수집, source metadata, demo dataset |
+| `yuna0822` | AI/NLP / Insight Lead | NLP 분석, Lead Score, LLM prompt, 전략 인사이트 |
+| `sksmsdngml-ui` | Frontend / Demo UX Lead | Next.js dashboard, chart, table, 발표 UI |
+
 ## 기술 스택
 
 - Frontend: Next.js, React, TypeScript, Tailwind CSS, Recharts
