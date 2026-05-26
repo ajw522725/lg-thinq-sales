@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<title>ThinQ-Sales | VOC Analysis</title>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#f7f9ff",
+                        "error": "#ba1a1a",
+                        "secondary": "#5a5e6a",
+                        "on-primary-container": "#ffafb5",
+                        "on-background": "#181c20",
+                        "surface-container-low": "#f1f4f9",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#ffb2b8",
+                        "surface-bright": "#f7f9ff",
+                        "surface-variant": "#e0e3e8",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e5e8ee",
+                        "tertiary": "#7b001a",
+                        "inverse-on-surface": "#eef1f6",
+                        "on-secondary-fixed": "#171b26",
+                        "secondary-fixed-dim": "#c3c6d4",
+                        "surface-container": "#ebeef3",
+                        "primary": "#7a0024",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#606471",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#e0e3e8",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed-variant": "#424752",
+                        "tertiary-fixed": "#ffdad9",
+                        "surface-dim": "#d7dadf",
+                        "tertiary-container": "#a60026",
+                        "on-surface": "#181c20",
+                        "primary-container": "#a50034",
+                        "surface-tint": "#b81840",
+                        "on-tertiary": "#ffffff",
+                        "inverse-surface": "#2d3135",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-container": "#ffb0b0",
+                        "on-surface-variant": "#5a4042",
+                        "on-primary-fixed": "#40000f",
+                        "outline": "#8e7071",
+                        "surface": "#f7f9ff",
+                        "on-primary-fixed-variant": "#91002d",
+                        "secondary-container": "#dfe2f1",
+                        "secondary-fixed": "#dfe2f1",
+                        "on-tertiary-fixed": "#400009",
+                        "inverse-primary": "#ffb2b8",
+                        "on-tertiary-fixed-variant": "#920021",
+                        "outline-variant": "#e2bec0",
+                        "tertiary-fixed-dim": "#ffb3b3",
+                        "primary-fixed": "#ffdadb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "stack-sm": "12px",
+                        "gutter": "24px",
+                        "stack-md": "20px",
+                        "section-gap": "48px",
+                        "container-padding": "32px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .ai-insight-glow {
+            border: 1px solid rgba(122, 0, 36, 0.1);
+            background-color: rgba(122, 0, 36, 0.02);
+            box-shadow: inset 0 0 20px rgba(122, 0, 36, 0.03);
+        }
+        .bento-card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.04);
+            padding: 32px;
+            transition: transform 0.2s ease;
+        }
+        .bento-card:hover {
+            transform: translateY(-2px);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f4f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #d7dadf;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden">
+<!-- SideNavBar -->
+<aside class="h-screen w-72 flex flex-col fixed left-0 top-0 bg-surface-container-low dark:bg-on-background py-base gap-stack-md z-50">
+<div class="px-gutter mb-stack-md">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="analytics">analytics</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">ThinQ-Sales</h1>
+<p class="font-label-md text-label-md text-secondary">Strategic Intelligence</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-1 px-4 overflow-y-auto custom-scrollbar">
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-secondary font-medium hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-primary dark:text-primary-fixed-dim font-bold border-r-4 border-primary dark:border-primary-fixed-dim bg-secondary-container/30" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-md">VOC Analysis</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-secondary font-medium hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-label-md">Lead Scoring</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-secondary font-medium hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span class="font-label-md">Strategy Insights</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-secondary font-medium hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-label-md">Customer Segments</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-secondary font-medium hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-label-md">Reports</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-secondary font-medium hover:bg-secondary-container/50 transition-colors mt-auto" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md">Settings</span>
+</a>
+</nav>
+<div class="px-4 mt-4">
+<button class="w-full py-3 bg-primary text-white rounded-xl font-label-md font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                New Analysis
+            </button>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full h-20 px-gutter ml-72 sticky top-0 z-40 bg-background/80 backdrop-blur-md max-w-[calc(1440px-288px)]">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 focus:ring-1 focus:ring-primary text-label-md" placeholder="Search feedback topics..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="flex items-center gap-2 text-primary font-bold">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+<span class="font-label-md">AI Assistant</span>
+</button>
+<div class="flex items-center gap-4">
+<button class="text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="h-10 w-10 rounded-full overflow-hidden border-2 border-surface-container-high">
+<img alt="Executive Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a senior corporate executive in a modern business suit. The lighting is soft and flattering, emphasizing a confident and reliable demeanor. The background is a blurred high-end office environment with sleek glass and architectural details, maintaining a clean and minimalist professional aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7EsC1eiPNf2F6x-ZrJF_9QeHc9J-iXHWa4HP2dawFrzSang-lsouVMWbJtrN0KbWuwLCaoHPUS1_1MsI2paEhr-xpe_QENJsQGsxLDpmMjMhnjOq0vwUeIfHTw_tncljdDwTinY1nQFbqoxCaI-Y_Ah_iFcm4as2ifQRunBDKzOwOWAEAHeTDlFGbdvquSVLGzIA8ysFw8JsVA5z_ds7SOOp9jfzs3_iCCUsT-lLmHDzeZjlvI4iLkf2UcUt8JJcVTdOeLafHNZtr"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-72 p-gutter max-w-[1440px]">
+<!-- Header Section -->
+<section class="mb-section-gap">
+<div class="flex items-end justify-between">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-background">VOC Detail Analysis</h2>
+<p class="text-secondary font-body-md mt-2">Deep learning NLP insights extracted from 1,240 customer interactions this month.</p>
+</div>
+<div class="flex gap-stack-sm">
+<div class="flex items-center bg-surface-container-low px-4 py-2 rounded-lg gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-md">Last 30 Days</span>
+</div>
+<button class="bg-primary text-white px-6 py-2 rounded-lg font-label-md font-bold flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="ios_share">ios_share</span>
+                        Export Insights
+                    </button>
+</div>
+</div>
+</section>
+<!-- Bento Grid Dashboard -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Sentiment Trend (8 cols) -->
+<div class="col-span-8 bento-card">
+<div class="flex justify-between items-start mb-8">
+<div>
+<h3 class="font-headline-md text-headline-md">Sentiment Analysis Trends</h3>
+<p class="text-secondary font-label-md">Aggregate emotional resonance across all channels</p>
+</div>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+<span class="text-label-sm">Positive</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-primary"></div>
+<span class="text-label-sm">Critical</span>
+</div>
+</div>
+</div>
+<div class="h-64 flex items-end justify-between gap-2">
+<!-- Placeholder for Line Chart -->
+<div class="w-full h-full relative">
+<svg class="w-full h-full" viewbox="0 0 800 200">
+<path d="M0,150 Q100,140 200,160 T400,130 T600,170 T800,140" fill="none" stroke="#7a0024" stroke-linecap="round" stroke-width="3"></path>
+<path d="M0,100 Q100,110 200,90 T400,120 T600,80 T800,100" fill="none" stroke="#10b981" stroke-linecap="round" stroke-width="3"></path>
+<!-- Grid lines -->
+<line stroke="#e5e8ee" stroke-width="1" x1="0" x2="800" y1="180" y2="180"></line>
+</svg>
+<div class="flex justify-between mt-4 text-label-sm text-secondary">
+<span>01 Oct</span>
+<span>07 Oct</span>
+<span>14 Oct</span>
+<span>21 Oct</span>
+<span>28 Oct</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Urgency Distribution (4 cols) -->
+<div class="col-span-4 bento-card flex flex-col">
+<h3 class="font-headline-md text-headline-md mb-2">Urgency Levels</h3>
+<p class="text-secondary font-label-md mb-8">AI-prioritized feedback volume</p>
+<div class="flex-1 flex flex-col justify-center gap-6">
+<div class="space-y-2">
+<div class="flex justify-between font-label-md">
+<span>Critical/High</span>
+<span class="font-bold">18%</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[18%]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between font-label-md">
+<span>Medium</span>
+<span class="font-bold">54%</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+<div class="bg-secondary-container h-full w-[54%]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between font-label-md">
+<span>Low/Inquiry</span>
+<span class="font-bold">28%</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+<div class="bg-emerald-100 h-full w-[28%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Topic Clusters (6 cols) -->
+<div class="col-span-6 bento-card ai-insight-glow">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary" data-icon="auto_awesome" data-weight="fill" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<h3 class="font-headline-md text-headline-md">Strategic Topic Clusters</h3>
+</div>
+<div class="space-y-4">
+<div class="flex items-center p-4 bg-white rounded-xl border border-outline-variant hover:border-primary transition-colors cursor-pointer group">
+<div class="flex-1">
+<h4 class="font-label-md font-bold text-on-background">Installation Issues</h4>
+<p class="text-label-sm text-secondary">428 mentions • 22% increase</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 bg-error-container text-on-error-container text-[10px] rounded font-bold">CRITICAL</span>
+<span class="material-symbols-outlined text-secondary group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<div class="flex items-center p-4 bg-white rounded-xl border border-outline-variant hover:border-primary transition-colors cursor-pointer group">
+<div class="flex-1">
+<h4 class="font-label-md font-bold text-on-background">Subscription Pricing</h4>
+<p class="text-label-sm text-secondary">312 mentions • Stable</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 bg-secondary-container text-on-secondary-container text-[10px] rounded font-bold">NEUTRAL</span>
+<span class="material-symbols-outlined text-secondary group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<div class="flex items-center p-4 bg-white rounded-xl border border-outline-variant hover:border-primary transition-colors cursor-pointer group">
+<div class="flex-1">
+<h4 class="font-label-md font-bold text-on-background">Feature Requests: Energy Monitor</h4>
+<p class="text-label-sm text-secondary">205 mentions • Emerging</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 bg-emerald-100 text-emerald-800 text-[10px] rounded font-bold">OPPORTUNITY</span>
+<span class="material-symbols-outlined text-secondary group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Keyword Extraction (6 cols) -->
+<div class="col-span-6 bento-card">
+<h3 class="font-headline-md text-headline-md mb-6">NLP Keyword Extraction</h3>
+<div class="flex flex-wrap gap-3">
+<span class="px-4 py-2 bg-primary/5 text-primary rounded-full font-label-md font-bold border border-primary/10">connectivity</span>
+<span class="px-6 py-3 bg-primary text-white rounded-full font-headline-md border border-primary">UX friction</span>
+<span class="px-3 py-1.5 bg-secondary-container/30 text-secondary rounded-full font-label-md">response time</span>
+<span class="px-5 py-2.5 bg-primary/10 text-primary rounded-full font-label-md font-bold">firmware update</span>
+<span class="px-4 py-2 bg-secondary-container/30 text-secondary rounded-full font-label-md">billing error</span>
+<span class="px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-full font-label-md font-bold">eco-mode</span>
+<span class="px-4 py-2 bg-secondary-container/30 text-secondary rounded-full font-label-md">voice command</span>
+<span class="px-6 py-3 bg-primary/5 text-primary rounded-full font-body-lg font-bold">latency</span>
+<span class="px-3 py-1.5 bg-secondary-container/30 text-secondary rounded-full font-label-md">ios integration</span>
+</div>
+</div>
+<!-- Recent VOC Snippets (12 cols) -->
+<div class="col-span-12 bento-card mb-section-gap">
+<div class="flex justify-between items-center mb-8">
+<h3 class="font-headline-md text-headline-md">Recent Voice of Customer Snippets</h3>
+<div class="flex gap-4">
+<button class="text-label-md text-secondary border-b-2 border-transparent hover:border-primary px-2 transition-all">All Feedback</button>
+<button class="text-label-md text-primary font-bold border-b-2 border-primary px-2 transition-all">Critical Only</button>
+</div>
+</div>
+<table class="w-full text-left">
+<thead>
+<tr class="text-label-sm text-secondary border-b border-surface-container-high uppercase tracking-wider">
+<th class="pb-4 font-bold">Feedback Snippet</th>
+<th class="pb-4 font-bold">NLP Sentiment</th>
+<th class="pb-4 font-bold">Extracted Intent</th>
+<th class="pb-4 font-bold">Source</th>
+<th class="pb-4 font-bold">Time</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-high">
+<tr class="hover:bg-primary/2 transition-colors cursor-pointer group">
+<td class="py-6 pr-8 max-w-md">
+<p class="text-on-background font-medium line-clamp-2">"The smart diagnosis feature kept failing during the ThinQ app setup. Really frustrating when you expect a premium experience."</p>
+</td>
+<td class="py-6">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="mood_bad">mood_bad</span>
+<span class="text-label-md text-primary font-bold">Negative</span>
+</span>
+</td>
+<td class="py-6">
+<span class="px-3 py-1 bg-surface-container-low text-secondary rounded text-[12px] font-bold">TECHNICAL_FAILURE</span>
+</td>
+<td class="py-6 text-label-md text-secondary">Mobile App Store</td>
+<td class="py-6 text-label-md text-secondary">2h ago</td>
+</tr>
+<tr class="hover:bg-primary/2 transition-colors cursor-pointer">
+<td class="py-6 pr-8 max-w-md">
+<p class="text-on-background font-medium line-clamp-2">"Why is the subscription for advanced analytics so expensive compared to competitors? I love the hardware but the software costs..."</p>
+</td>
+<td class="py-6">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-amber-500 text-[18px]" data-icon="sentiment_neutral">sentiment_neutral</span>
+<span class="text-label-md text-amber-600 font-bold">Concerned</span>
+</span>
+</td>
+<td class="py-6">
+<span class="px-3 py-1 bg-surface-container-low text-secondary rounded text-[12px] font-bold">PRICE_SENSITIVITY</span>
+</td>
+<td class="py-6 text-label-md text-secondary">Direct Survey</td>
+<td class="py-6 text-label-md text-secondary">5h ago</td>
+</tr>
+<tr class="hover:bg-primary/2 transition-colors cursor-pointer">
+<td class="py-6 pr-8 max-w-md">
+<p class="text-on-background font-medium line-clamp-2">"Excellent service from the installation team! They guided me through the entire AI energy saving mode setup seamlessly."</p>
+</td>
+<td class="py-6">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-emerald-500 text-[18px]" data-icon="mood">mood</span>
+<span class="text-label-md text-emerald-600 font-bold">Positive</span>
+</span>
+</td>
+<td class="py-6">
+<span class="px-3 py-1 bg-surface-container-low text-secondary rounded text-[12px] font-bold">SERVICE_QUALITY</span>
+</td>
+<td class="py-6 text-label-md text-secondary">Email Feedback</td>
+<td class="py-6 text-label-md text-secondary">8h ago</td>
+</tr>
+<tr class="hover:bg-primary/2 transition-colors cursor-pointer">
+<td class="py-6 pr-8 max-w-md">
+<p class="text-on-background font-medium line-clamp-2">"I cannot find the option to schedule washing cycles during off-peak energy hours. Is this feature even there?"</p>
+</td>
+<td class="py-6">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[18px]" data-icon="help_center">help_center</span>
+<span class="text-label-md text-secondary font-bold">Inquiry</span>
+</span>
+</td>
+<td class="py-6">
+<span class="px-3 py-1 bg-surface-container-low text-secondary rounded text-[12px] font-bold">FEATURE_DISCOVERY</span>
+</td>
+<td class="py-6 text-label-md text-secondary">Support Ticket</td>
+<td class="py-6 text-label-md text-secondary">1d ago</td>
+</tr>
+</tbody>
+</table>
+<div class="mt-8 flex justify-center">
+<button class="text-primary font-bold font-label-md flex items-center gap-2 py-2 px-6 border border-primary rounded-lg hover:bg-primary hover:text-white transition-all">
+                        Load More Interactions
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Action Button - Only for Analysis context -->
+<div class="fixed bottom-8 right-8 z-50">
+<button class="h-14 w-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+</button>
+</div>
+<script>
+        // Micro-interactions for bento cards
+        document.querySelectorAll('.bento-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                // Subtle lift effect handled by CSS
+            });
+        });
+
+        // Search bar focus effect
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('ring-2', 'ring-primary/20');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('ring-2', 'ring-primary/20');
+        });
+    </script>
+</body></html>

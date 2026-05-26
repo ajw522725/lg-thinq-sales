@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ThinQ-Sales | Strategic Intelligence Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#f7f9ff",
+                        "error": "#ba1a1a",
+                        "secondary": "#5a5e6a",
+                        "on-primary-container": "#ffafb5",
+                        "on-background": "#181c20",
+                        "surface-container-low": "#f1f4f9",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#ffb2b8",
+                        "surface-bright": "#f7f9ff",
+                        "surface-variant": "#e0e3e8",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e5e8ee",
+                        "tertiary": "#7b001a",
+                        "inverse-on-surface": "#eef1f6",
+                        "on-secondary-fixed": "#171b26",
+                        "secondary-fixed-dim": "#c3c6d4",
+                        "surface-container": "#ebeef3",
+                        "primary": "#7a0024",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#606471",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#e0e3e8",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed-variant": "#424752",
+                        "tertiary-fixed": "#ffdad9",
+                        "surface-dim": "#d7dadf",
+                        "tertiary-container": "#a60026",
+                        "on-surface": "#181c20",
+                        "primary-container": "#a50034",
+                        "surface-tint": "#b81840",
+                        "on-tertiary": "#ffffff",
+                        "inverse-surface": "#2d3135",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-container": "#ffb0b0",
+                        "on-surface-variant": "#5a4042",
+                        "on-primary-fixed": "#40000f",
+                        "outline": "#8e7071",
+                        "surface": "#f7f9ff",
+                        "on-primary-fixed-variant": "#91002d",
+                        "secondary-container": "#dfe2f1",
+                        "secondary-fixed": "#dfe2f1",
+                        "on-tertiary-fixed": "#400009",
+                        "inverse-primary": "#ffb2b8",
+                        "on-tertiary-fixed-variant": "#920021",
+                        "outline-variant": "#e2bec0",
+                        "tertiary-fixed-dim": "#ffb3b3",
+                        "primary-fixed": "#ffdadb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "stack-sm": "12px",
+                        "gutter": "24px",
+                        "stack-md": "20px",
+                        "section-gap": "48px",
+                        "container-padding": "32px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9ff; }
+        .ai-glow {
+            border: 1px solid rgba(122, 0, 36, 0.1);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(122, 0, 36, 0.03) 100%);
+            box-shadow: inset 0 0 20px rgba(122, 0, 36, 0.05);
+        }
+        .bento-card {
+            background: #ffffff;
+            border-radius: 0.75rem;
+            padding: 32px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.04);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .bento-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.06);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="text-on-background antialiased overflow-x-hidden">
+<!-- SideNavBar -->
+<aside class="h-screen w-72 flex-col fixed left-0 top-0 bg-surface-container-low dark:bg-on-background flex py-base gap-stack-md z-50">
+<div class="px-gutter mb-base">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-lg">
+<span class="text-white font-bold text-xl">LG</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim leading-none">ThinQ-Sales</h1>
+<p class="font-label-sm text-label-sm text-secondary opacity-70">Strategic Intelligence</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<!-- Active Tab: Dashboard -->
+<a class="flex items-center px-4 py-3 rounded-lg text-primary dark:text-primary-fixed-dim font-bold border-r-4 border-primary dark:border-primary-fixed-dim bg-secondary-container/30 transition-all scale-[0.98]" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed-dim font-medium hover:bg-secondary-container/50 transition-colors group" href="#">
+<span class="material-symbols-outlined mr-3 group-hover:text-primary">analytics</span>
+<span class="font-label-md text-label-md">VOC Analysis</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed-dim font-medium hover:bg-secondary-container/50 transition-colors group" href="#">
+<span class="material-symbols-outlined mr-3 group-hover:text-primary">leaderboard</span>
+<span class="font-label-md text-label-md">Lead Scoring</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed-dim font-medium hover:bg-secondary-container/50 transition-colors group" href="#">
+<span class="material-symbols-outlined mr-3 group-hover:text-primary">psychology</span>
+<span class="font-label-md text-label-md">Strategy Insights</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed-dim font-medium hover:bg-secondary-container/50 transition-colors group" href="#">
+<span class="material-symbols-outlined mr-3 group-hover:text-primary">groups</span>
+<span class="font-label-md text-label-md">Customer Segments</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed-dim font-medium hover:bg-secondary-container/50 transition-colors group" href="#">
+<span class="material-symbols-outlined mr-3 group-hover:text-primary">description</span>
+<span class="font-label-md text-label-md">Reports</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed-dim font-medium hover:bg-secondary-container/50 transition-colors group mt-auto" href="#">
+<span class="material-symbols-outlined mr-3 group-hover:text-primary">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<div class="px-4 mt-auto pb-gutter">
+<button class="w-full py-3 px-4 bg-primary text-on-primary rounded-xl font-label-md text-label-md flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+                New Analysis
+            </button>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="ml-72 flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full h-20 px-gutter sticky top-0 z-40 bg-background/80 backdrop-blur-md">
+<div class="flex items-center bg-surface-container-low px-4 py-2 rounded-full w-96">
+<span class="material-symbols-outlined text-secondary mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-label-md w-full" placeholder="Search insights, leads or VOC..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<button class="flex items-center gap-2 text-primary font-bold transition-opacity hover:opacity-80">
+<span class="material-symbols-outlined">auto_awesome</span>
+<span class="font-label-md">AI Assistant</span>
+</button>
+<div class="flex items-center gap-4 text-secondary">
+<button class="material-symbols-outlined hover:text-primary transition-colors">notifications</button>
+<button class="material-symbols-outlined hover:text-primary transition-colors">help_outline</button>
+</div>
+<div class="h-10 w-10 rounded-full overflow-hidden border-2 border-primary/20">
+<img alt="Executive Profile" class="h-full w-full object-cover" data-alt="A professional corporate portrait of an executive male in a tailored charcoal suit, looking confident and composed. The background is a blurred high-end office environment with soft, warm lighting. The image quality is crisp and premium, reflecting a leadership persona for a high-stakes intelligence platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQPua3pKSba1JEKRtLNLy4XdOvsRyIzayYE3Rna9O0j_ZBJRUq8gOmZLIPmax9mPbzY7dwz-qEu1cv6yz41tbQgG72Ku_FpBdpKEBqBSCg89gTpVY0hM2UUE3EzBguUD3AU_sq-_IwvQ4505MHihi7M2Zu2kpCcuKXZGDq9xUDIhSJmg7tSjO_YztXJ78_KBjC8G6WnlSmWpey4SFEaPM2I_izP7YmmzArXk1sUzRNOi8KpWv4sEpIRh0z7YZGsSosQ3ztSVDf6ZVU"/>
+</div>
+</div>
+</header>
+<!-- Dashboard Canvas -->
+<main class="max-w-[1440px] mx-auto w-full px-gutter pb-section-gap">
+<!-- SECTION 1: KPI Cards -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter mt-base">
+<div class="bento-card">
+<p class="font-label-md text-label-md text-secondary mb-1">Total VOC Collected</p>
+<div class="flex items-end gap-2">
+<h3 class="font-display-lg text-display-lg text-primary leading-none">12.4k</h3>
+<span class="text-emerald-600 font-label-sm mb-2 flex items-center">
+<span class="material-symbols-outlined text-[16px]">trending_up</span> 8%
+                        </span>
+</div>
+<div class="mt-4 h-1 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-3/4"></div>
+</div>
+</div>
+<div class="bento-card">
+<p class="font-label-md text-label-md text-secondary mb-1">High Priority Leads</p>
+<div class="flex items-end gap-2">
+<h3 class="font-display-lg text-display-lg text-on-background leading-none">842</h3>
+<span class="text-emerald-600 font-label-sm mb-2 flex items-center">
+<span class="material-symbols-outlined text-[16px]">arrow_drop_up</span> 12
+                        </span>
+</div>
+<p class="font-label-sm text-label-sm text-secondary mt-4">+15% vs last month</p>
+</div>
+<div class="bento-card">
+<p class="font-label-md text-label-md text-secondary mb-1">Churn Risk</p>
+<div class="flex items-end gap-2">
+<h3 class="font-display-lg text-display-lg text-error leading-none">12%</h3>
+<span class="text-error font-label-sm mb-2 flex items-center">
+<span class="material-symbols-outlined text-[16px]">warning</span> High
+                        </span>
+</div>
+<div class="mt-4 flex gap-1">
+<div class="h-1 flex-1 bg-error/20 rounded-full"></div>
+<div class="h-1 flex-1 bg-error/20 rounded-full"></div>
+<div class="h-1 flex-1 bg-error rounded-full"></div>
+<div class="h-1 flex-1 bg-surface-container rounded-full"></div>
+</div>
+</div>
+<div class="bento-card">
+<p class="font-label-md text-label-md text-secondary mb-1">Conversion Rate</p>
+<div class="flex items-end gap-2">
+<h3 class="font-display-lg text-display-lg text-on-background leading-none">18.5%</h3>
+<span class="text-secondary font-label-sm mb-2">Target 20%</span>
+</div>
+<div class="mt-4 h-1 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-on-background w-[92%]"></div>
+</div>
+</div>
+</section>
+<!-- Middle Section: Analysis & AI Insight -->
+<div class="grid grid-cols-12 gap-gutter mt-gutter">
+<!-- SECTION 2: VOC Analysis Panel -->
+<section class="col-span-12 lg:col-span-8 bento-card">
+<div class="flex justify-between items-center mb-8">
+<h2 class="font-headline-md text-headline-md text-on-background">VOC Analysis Panel</h2>
+<button class="font-label-md text-primary hover:underline">View Deep Dive</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div>
+<p class="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-4">Sentiment Breakdown</p>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between font-label-md mb-1">
+<span>Positive</span>
+<span class="font-bold">64%</span>
+</div>
+<div class="h-3 w-full bg-surface-container rounded-full">
+<div class="h-full bg-emerald-500 rounded-full" style="width: 64%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-md mb-1">
+<span>Neutral</span>
+<span class="font-bold">22%</span>
+</div>
+<div class="h-3 w-full bg-surface-container rounded-full">
+<div class="h-full bg-slate-400 rounded-full" style="width: 22%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-md mb-1">
+<span>Negative</span>
+<span class="font-bold">14%</span>
+</div>
+<div class="h-3 w-full bg-surface-container rounded-full">
+<div class="h-full bg-primary rounded-full" style="width: 14%"></div>
+</div>
+</div>
+</div>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-4">Top Keyword Tags</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full font-label-sm">ThinQ Integration</span>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full font-label-sm">Energy Saving</span>
+<span class="px-3 py-1 bg-primary-container/10 text-primary rounded-full font-label-sm border border-primary/20">Subscription Care</span>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full font-label-sm">Styler Pro</span>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full font-label-sm">WashTower Install</span>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full font-label-sm">UI/UX</span>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full font-label-sm">Customer Service</span>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 4: AI Strategy Insight Panel -->
+<section class="col-span-12 lg:col-span-4 bento-card ai-glow flex flex-col">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<h2 class="font-headline-md text-headline-md text-on-background">AI Strategy Insight</h2>
+</div>
+<div class="bg-white p-6 rounded-xl border border-primary/10 shadow-sm flex-1">
+<div class="flex items-start gap-3 mb-4">
+<span class="material-symbols-outlined text-primary bg-primary/5 p-2 rounded-lg">lightbulb</span>
+<p class="font-body-md text-body-md text-on-background font-medium">Strategic Recommendation</p>
+</div>
+<p class="font-body-lg text-body-lg text-on-background leading-relaxed italic border-l-4 border-primary pl-4 py-2">
+                            "High purchase intent for subscription-based appliance care detected in recent VOC analysis across the Premium segment."
+                        </p>
+<div class="mt-6 flex flex-col gap-3">
+<div class="flex justify-between text-label-sm">
+<span class="text-secondary">Confidence Level</span>
+<span class="text-primary font-bold">94%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full">
+<div class="h-full bg-primary rounded-full" style="width: 94%"></div>
+</div>
+</div>
+</div>
+<button class="mt-6 w-full py-3 bg-on-background text-white rounded-lg font-label-md hover:bg-on-background/90 transition-colors">Generate Action Plan</button>
+</section>
+</div>
+<!-- Bottom Section: Table & Flow -->
+<div class="grid grid-cols-12 gap-gutter mt-gutter">
+<!-- SECTION 3: Lead Scoring Table -->
+<section class="col-span-12 lg:col-span-8 bento-card overflow-hidden">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-headline-md text-headline-md text-on-background">High Priority Lead Scoring</h2>
+<div class="flex gap-2">
+<button class="p-2 border border-outline-variant rounded-lg material-symbols-outlined hover:bg-surface-container">filter_list</button>
+<button class="p-2 border border-outline-variant rounded-lg material-symbols-outlined hover:bg-surface-container">download</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="border-b border-surface-variant">
+<th class="py-4 font-label-sm text-secondary uppercase tracking-wider">Name</th>
+<th class="py-4 font-label-sm text-secondary uppercase tracking-wider">Product</th>
+<th class="py-4 font-label-sm text-secondary uppercase tracking-wider">Score</th>
+<th class="py-4 font-label-sm text-secondary uppercase tracking-wider">Risk</th>
+<th class="py-4 font-label-sm text-secondary uppercase tracking-wider">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-variant">
+<tr class="hover:bg-primary/[0.02] transition-colors group">
+<td class="py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center font-bold text-primary text-xs">JD</div>
+<span class="font-label-md">Jonathan Davies</span>
+</div>
+</td>
+<td class="py-4 font-body-md">LG Styler</td>
+<td class="py-4">
+<div class="flex items-center gap-3">
+<div class="w-24 h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-emerald-500" style="width: 92%"></div>
+</div>
+<span class="font-label-sm font-bold">92</span>
+</div>
+</td>
+<td class="py-4">
+<span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-bold uppercase">Low</span>
+</td>
+<td class="py-4">
+<button class="text-primary font-bold text-label-md group-hover:underline">Contact</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/[0.02] transition-colors group">
+<td class="py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center font-bold text-primary text-xs">SM</div>
+<span class="font-label-md">Sarah Miller</span>
+</div>
+</td>
+<td class="py-4 font-body-md">WashTower</td>
+<td class="py-4">
+<div class="flex items-center gap-3">
+<div class="w-24 h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-amber-500" style="width: 78%"></div>
+</div>
+<span class="font-label-sm font-bold">78</span>
+</div>
+</td>
+<td class="py-4">
+<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-bold uppercase">Medium</span>
+</td>
+<td class="py-4">
+<button class="text-primary font-bold text-label-md group-hover:underline">Contact</button>
+</td>
+</tr>
+<tr class="hover:bg-primary/[0.02] transition-colors group">
+<td class="py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center font-bold text-primary text-xs">RK</div>
+<span class="font-label-md">Robert Kim</span>
+</div>
+</td>
+<td class="py-4 font-body-md">InstaView Fridge</td>
+<td class="py-4">
+<div class="flex items-center gap-3">
+<div class="w-24 h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 65%"></div>
+</div>
+<span class="font-label-sm font-bold">65</span>
+</div>
+</td>
+<td class="py-4">
+<span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-[10px] font-bold uppercase">High</span>
+</td>
+<td class="py-4">
+<button class="text-primary font-bold text-label-md group-hover:underline">Contact</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- SECTION 5: Flow Visualization -->
+<section class="col-span-12 lg:col-span-4 bento-card flex flex-col">
+<h2 class="font-headline-md text-headline-md text-on-background mb-8 text-center">Intelligence Pipeline</h2>
+<div class="relative flex flex-col items-center flex-1 justify-around">
+<!-- Connecting Line -->
+<div class="absolute w-0.5 h-full bg-gradient-to-b from-primary/10 via-primary to-primary/10 left-1/2 -translate-x-1/2"></div>
+<div class="relative z-10 flex flex-col items-center">
+<div class="w-14 h-14 bg-white shadow-lg border border-primary/10 rounded-xl flex items-center justify-center text-primary mb-2">
+<span class="material-symbols-outlined text-[32px]">record_voice_over</span>
+</div>
+<span class="font-label-sm bg-white px-2">VOC</span>
+</div>
+<div class="relative z-10 flex flex-col items-center">
+<div class="w-14 h-14 bg-primary text-white shadow-lg rounded-xl flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-[32px]">psychology</span>
+</div>
+<span class="font-label-sm bg-white px-2">NLP Analysis</span>
+</div>
+<div class="relative z-10 flex flex-col items-center">
+<div class="w-14 h-14 bg-white shadow-lg border border-primary/10 rounded-xl flex items-center justify-center text-primary mb-2">
+<span class="material-symbols-outlined text-[32px]">star</span>
+</div>
+<span class="font-label-sm bg-white px-2">Score</span>
+</div>
+<div class="relative z-10 flex flex-col items-center">
+<div class="w-14 h-14 bg-on-background text-white shadow-lg rounded-xl flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-[32px]">bolt</span>
+</div>
+<span class="font-label-sm bg-white px-2">Action</span>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+<!-- Background Subtle Accents -->
+<div class="fixed top-0 right-0 -z-10 opacity-10 pointer-events-none">
+<svg fill="none" height="600" viewbox="0 0 600 600" width="600" xmlns="http://www.w3.org/2000/svg">
+<circle cx="450" cy="150" fill="url(#paint0_radial_bg)" r="150"></circle>
+<defs>
+<radialgradient cx="0" cy="0" gradienttransform="translate(450 150) rotate(90) scale(150)" gradientunits="userSpaceOnUse" id="paint0_radial_bg" r="1">
+<stop stop-color="#7a0024"></stop>
+<stop offset="1" stop-color="#7a0024" stop-opacity="0"></stop>
+</radialgradient>
+</defs>
+</svg>
+</div>
+<script>
+        // Simple micro-interaction for KPI card hover effects or number increments
+        document.querySelectorAll('.bento-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                // Potential for adding JS-driven animations
+            });
+        });
+
+        // Initialize Material Symbols with Fill if needed
+        window.onload = () => {
+            // Script to ensure layout consistency on different heights
+        }
+    </script>
+</body></html>

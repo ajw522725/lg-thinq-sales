@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lead Scoring Management - ThinQ-Sales</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .ai-focus-glow {
+            box-shadow: inset 0 0 12px rgba(122, 0, 36, 0.05);
+            border: 1px solid rgba(122, 0, 36, 0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e8ee; border-radius: 10px; }
+        .row-hover:hover { background-color: rgba(122, 0, 36, 0.02); }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#f7f9ff",
+                        "error": "#ba1a1a",
+                        "secondary": "#5a5e6a",
+                        "on-primary-container": "#ffafb5",
+                        "on-background": "#181c20",
+                        "surface-container-low": "#f1f4f9",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#ffb2b8",
+                        "surface-bright": "#f7f9ff",
+                        "surface-variant": "#e0e3e8",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e5e8ee",
+                        "tertiary": "#7b001a",
+                        "inverse-on-surface": "#eef1f6",
+                        "on-secondary-fixed": "#171b26",
+                        "secondary-fixed-dim": "#c3c6d4",
+                        "surface-container": "#ebeef3",
+                        "primary": "#7a0024",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#606471",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#e0e3e8",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed-variant": "#424752",
+                        "tertiary-fixed": "#ffdad9",
+                        "surface-dim": "#d7dadf",
+                        "tertiary-container": "#a60026",
+                        "on-surface": "#181c20",
+                        "primary-container": "#a50034",
+                        "surface-tint": "#b81840",
+                        "on-tertiary": "#ffffff",
+                        "inverse-surface": "#2d3135",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-container": "#ffb0b0",
+                        "on-surface-variant": "#5a4042",
+                        "on-primary-fixed": "#40000f",
+                        "outline": "#8e7071",
+                        "surface": "#f7f9ff",
+                        "on-primary-fixed-variant": "#91002d",
+                        "secondary-container": "#dfe2f1",
+                        "secondary-fixed": "#dfe2f1",
+                        "on-tertiary-fixed": "#400009",
+                        "inverse-primary": "#ffb2b8",
+                        "on-tertiary-fixed-variant": "#920021",
+                        "outline-variant": "#e2bec0",
+                        "tertiary-fixed-dim": "#ffb3b3",
+                        "primary-fixed": "#ffdadb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "stack-sm": "12px",
+                        "gutter": "24px",
+                        "stack-md": "20px",
+                        "section-gap": "48px",
+                        "container-padding": "32px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"], "label-sm": ["Inter"], "headline-md": ["Inter"], "body-md": ["Inter"], "body-lg": ["Inter"], "headline-lg-mobile": ["Inter"], "display-lg": ["Inter"], "headline-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface overflow-hidden">
+<!-- Side Navigation Shell -->
+<nav class="h-screen w-72 flex-col fixed left-0 top-0 bg-surface-container-low dark:bg-on-background flex py-base gap-stack-md z-50">
+<div class="px-gutter mb-base">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">ThinQ-Sales</h1>
+<p class="font-label-md text-label-md text-secondary opacity-70">Strategic Intelligence</p>
+</div>
+<div class="flex flex-col flex-grow px-4 gap-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed-dim font-medium hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed-dim font-medium hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-md text-label-md">VOC Analysis</span>
+</a>
+<!-- ACTIVE TAB: Lead Scoring -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary dark:text-primary-fixed-dim font-bold border-r-4 border-primary dark:border-primary-fixed-dim bg-secondary-container/30" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard" style="font-variation-settings: 'FILL' 1;">leaderboard</span>
+<span class="font-label-md text-label-md">Lead Scoring</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed-dim font-medium hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span class="font-label-md text-label-md">Strategy Insights</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed-dim font-medium hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-label-md text-label-md">Customer Segments</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed-dim font-medium hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-label-md text-label-md">Reports</span>
+</a>
+<div class="mt-auto border-t border-surface-variant pt-4">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed-dim font-medium hover:bg-secondary-container/50 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+</div>
+<div class="px-gutter mt-4">
+<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-base">add</span>
+                New Analysis
+            </button>
+</div>
+</nav>
+<!-- Top Navigation Shell -->
+<header class="flex justify-between items-center w-full h-20 px-gutter ml-72 max-w-[calc(1440px-288px)] sticky top-0 z-40 bg-background/80 backdrop-blur-md">
+<div class="flex items-center gap-gutter w-full">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary opacity-60" data-icon="search">search</span>
+<input class="w-full pl-12 pr-4 py-2 bg-surface-container-low border-none rounded-full font-label-md text-label-md focus:ring-1 focus:ring-primary" placeholder="Search leads, accounts, or insights..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6 shrink-0">
+<div class="flex items-center gap-4">
+<button class="relative p-2 text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-background"></span>
+</button>
+<button class="p-2 text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-surface-variant mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="text-right hidden xl:block">
+<p class="font-label-md text-label-md font-bold text-on-surface">Director Han</p>
+<p class="text-[10px] text-secondary tracking-wider uppercase">Strategic Sales</p>
+</div>
+<img alt="Executive Profile" class="w-10 h-10 rounded-full border border-surface-variant" data-alt="A professional headshot of a senior executive male in a tailored charcoal suit, looking confident and composed against a soft-focus corporate backdrop. The lighting is sophisticated and bright, matching a high-end minimalist business aesthetic. The image conveys leadership, reliability, and strategic thinking within a modern LG-inspired workspace environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAI3_5K4oXruWf4VMt2M5UQWN0roTHKgZ-eh0_0BimkOBPlEaFo6tb2SkBU1u-8XYVRTM6bAL7U1CmH4EPWziM50Kfk2I67U0nsZoR-bX2UGYY7IswRD34AbuflkZXrnGWjYyIzCkHFKGEoN7k9y6lRWlWnHHaKvUTE21NY4blBAoAGBEl0MFB14S4bTZdmVSbWxHuYa4WVGELUy2UKhY-h0jBZt9flJo5UhqCKmWljTbXNoppwtsgXiyhGnbCcYHSdBhPLCPuhKq5l"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-72 p-gutter max-w-[1440px] h-[calc(100vh-80px)] overflow-hidden flex flex-col gap-6">
+<!-- Header & Statistics -->
+<div class="flex flex-col gap-6">
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Lead Scoring Management</h2>
+<p class="font-body-md text-body-md text-secondary mt-1">Predictive intent modeling powered by LG ThinQ Strategic Intelligence.</p>
+</div>
+<div class="flex gap-stack-sm">
+<button class="flex items-center gap-2 px-4 py-2 border border-outline rounded-lg font-label-md text-label-md text-secondary hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="download">download</span> Export Report
+                    </button>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-lg font-label-md text-label-md font-bold hover:shadow-lg transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="auto_awesome">auto_awesome</span> Refresh AI Scores
+                    </button>
+</div>
+</div>
+<!-- Dashboard Mini Cards (Bento) -->
+<div class="grid grid-cols-12 gap-gutter">
+<div class="col-span-3 bg-surface-container-lowest p-6 rounded-xl border border-surface-container-high">
+<p class="font-label-md text-label-md text-secondary">High-Intent Leads</p>
+<div class="flex items-end justify-between mt-2">
+<span class="font-display-lg text-display-lg text-primary">248</span>
+<span class="text-emerald-600 font-label-md flex items-center mb-2"><span class="material-symbols-outlined text-sm">arrow_upward</span> 12%</span>
+</div>
+</div>
+<div class="col-span-3 bg-surface-container-lowest p-6 rounded-xl border border-surface-container-high">
+<p class="font-label-md text-label-md text-secondary">Avg. Conversion Rate</p>
+<div class="flex items-end justify-between mt-2">
+<span class="font-display-lg text-display-lg text-on-surface">34.2%</span>
+<span class="text-emerald-600 font-label-md flex items-center mb-2"><span class="material-symbols-outlined text-sm">arrow_upward</span> 4%</span>
+</div>
+</div>
+<div class="col-span-6 ai-focus-glow bg-surface-container-lowest p-6 rounded-xl relative overflow-hidden">
+<div class="relative z-10 flex justify-between">
+<div>
+<p class="font-label-md text-label-md text-primary font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="psychology">psychology</span> AI Strategy Insight
+                            </p>
+<p class="font-body-md text-body-md mt-2 max-w-md">B2B Home Appliances segment is showing 40% higher purchase intent in Q4. Recommend re-allocating SDR resources to 'Commercial' categories.</p>
+</div>
+<span class="material-symbols-outlined text-6xl opacity-5 text-primary absolute right-[-10px] bottom-[-10px]" data-icon="trending_up">trending_up</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Filter Bar -->
+<div class="bg-surface-container-lowest p-4 rounded-xl flex items-center gap-6 border border-surface-container-high">
+<div class="flex items-center gap-3">
+<span class="font-label-md text-label-md text-secondary">Filter by:</span>
+<select class="bg-surface-container-low border-none rounded-lg font-label-md text-label-md px-4 py-2 focus:ring-1 focus:ring-primary">
+<option>Product Category</option>
+<option>Home Entertainment</option>
+<option>Home Appliances</option>
+<option>B2B / Solutions</option>
+</select>
+<select class="bg-surface-container-low border-none rounded-lg font-label-md text-label-md px-4 py-2 focus:ring-1 focus:ring-primary">
+<option>Score Range: All</option>
+<option>80 - 100 (Hot)</option>
+<option>50 - 79 (Warm)</option>
+<option>0 - 49 (Cold)</option>
+</select>
+<select class="bg-surface-container-low border-none rounded-lg font-label-md text-label-md px-4 py-2 focus:ring-1 focus:ring-primary">
+<option>Date: Last 30 Days</option>
+<option>Last 7 Days</option>
+<option>Quarter to Date</option>
+</select>
+</div>
+<div class="ml-auto flex gap-2">
+<button class="p-2 bg-surface-container-low rounded-lg text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span>
+</button>
+<button class="p-2 bg-surface-container-low rounded-lg text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="view_column">view_column</span>
+</button>
+</div>
+</div>
+<!-- Table and Side Panel Content Area -->
+<div class="flex-grow flex gap-gutter overflow-hidden pb-base">
+<!-- Main Table Section -->
+<div class="flex-grow bg-surface-container-lowest rounded-xl border border-surface-container-high overflow-hidden flex flex-col">
+<div class="overflow-y-auto custom-scrollbar">
+<table class="w-full text-left">
+<thead class="sticky top-0 bg-surface-container-lowest border-b border-surface-variant z-10">
+<tr>
+<th class="px-6 py-4 font-label-md text-label-md text-secondary">Customer Name</th>
+<th class="px-6 py-4 font-label-md text-label-md text-secondary">Category</th>
+<th class="px-6 py-4 font-label-md text-label-md text-secondary">Lead Score</th>
+<th class="px-6 py-4 font-label-md text-label-md text-secondary">Risk Level</th>
+<th class="px-6 py-4 font-label-md text-label-md text-secondary">Intent</th>
+<th class="px-6 py-4 font-label-md text-label-md text-secondary text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-variant/50">
+<!-- Row 1 Selected -->
+<tr class="row-hover cursor-pointer transition-colors bg-secondary-container/10 border-l-4 border-primary" onclick="showBreakdown('Global Logistics Inc.', 94, 'High Intent', 'VOC data indicates urgent replacement need for cooling systems.')">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-surface-container-high rounded-full flex items-center justify-center font-bold text-primary">GL</div>
+<span class="font-label-md text-label-md font-bold">Global Logistics Inc.</span>
+</div>
+</td>
+<td class="px-6 py-5 font-body-md text-body-md">Commercial HVAC</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="flex-grow bg-surface-container-high h-2 w-24 rounded-full overflow-hidden">
+<div class="bg-primary h-full" style="width: 94%"></div>
+</div>
+<span class="font-label-md text-label-md font-bold text-primary">94</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-[12px] font-bold">Low</span>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-lg text-[12px] font-medium">Acquisition</span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-primary font-label-md text-label-md font-bold hover:underline">Draft Proposal</button>
+</td>
+</tr>
+<tr class="row-hover cursor-pointer transition-colors" onclick="showBreakdown('Horizon Hotels', 78, 'Moderate Interest', 'Increased frequency of technical support searches for digital signage.')">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-surface-container-high rounded-full flex items-center justify-center font-bold text-secondary">HH</div>
+<span class="font-label-md text-label-md font-bold">Horizon Hotels</span>
+</div>
+</td>
+<td class="px-6 py-5 font-body-md text-body-md">Display Solutions</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="flex-grow bg-surface-container-high h-2 w-24 rounded-full overflow-hidden">
+<div class="bg-primary/60 h-full" style="width: 78%"></div>
+</div>
+<span class="font-label-md text-label-md font-bold">78</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-[12px] font-bold">Med</span>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-lg text-[12px] font-medium">Upgrade</span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-secondary font-label-md text-label-md font-bold hover:text-primary transition-colors">Contact</button>
+</td>
+</tr>
+<tr class="row-hover cursor-pointer transition-colors" onclick="showBreakdown('SmartLife Residential', 52, 'Developing', 'Early stage research into multi-split units. VOC frequency low.')">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-surface-container-high rounded-full flex items-center justify-center font-bold text-secondary">SR</div>
+<span class="font-label-md text-label-md font-bold">SmartLife Residential</span>
+</div>
+</td>
+<td class="px-6 py-5 font-body-md text-body-md">Home Appliances</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="flex-grow bg-surface-container-high h-2 w-24 rounded-full overflow-hidden">
+<div class="bg-secondary/40 h-full" style="width: 52%"></div>
+</div>
+<span class="font-label-md text-label-md font-bold">52</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-error-container text-on-error-container rounded-full text-[12px] font-bold">High</span>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-lg text-[12px] font-medium">Inquiry</span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-secondary font-label-md text-label-md font-bold hover:text-primary transition-colors">Qualify</button>
+</td>
+</tr>
+<tr class="row-hover cursor-pointer transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-surface-container-high rounded-full flex items-center justify-center font-bold text-secondary">NT</div>
+<span class="font-label-md text-label-md font-bold">Nordic Tech Hub</span>
+</div>
+</td>
+<td class="px-6 py-5 font-body-md text-body-md">IT Solutions</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<div class="flex-grow bg-surface-container-high h-2 w-24 rounded-full overflow-hidden">
+<div class="bg-primary/80 h-full" style="width: 86%"></div>
+</div>
+<span class="font-label-md text-label-md font-bold">86</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-[12px] font-bold">Low</span>
+</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-lg text-[12px] font-medium">Renewal</span>
+</td>
+<td class="px-6 py-5 text-right">
+<button class="text-primary font-label-md text-label-md font-bold hover:underline">Draft Proposal</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- AI Score Breakdown Sidebar -->
+<div class="w-96 bg-surface-container-lowest border border-surface-container-high rounded-xl p-6 flex flex-col gap-6 shadow-2xl transition-all" id="aiBreakdown">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-md text-headline-md font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                        AI Breakdown
+                    </h3>
+<button class="p-1 hover:bg-surface-container-low rounded-full transition-colors" onclick="this.parentElement.parentElement.classList.add('hidden')">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<div class="flex items-center justify-between p-4 bg-primary/5 rounded-xl border border-primary/10">
+<span class="font-label-md text-label-md font-bold" id="targetName">Global Logistics Inc.</span>
+<span class="text-2xl font-bold text-primary" id="targetScore">94</span>
+</div>
+<div class="space-y-4">
+<div>
+<p class="font-label-sm text-label-sm text-secondary uppercase tracking-widest mb-2">Intent Attribution</p>
+<div class="flex flex-col gap-3">
+<div class="bg-surface-container p-3 rounded-lg">
+<div class="flex justify-between font-label-md mb-1">
+<span>VOC Sentiment</span>
+<span class="text-emerald-600">+45 pts</span>
+</div>
+<p class="text-[12px] text-secondary" id="vocInsight">Customer mentioned "critical operational risk" if units are not replaced by July during a service call.</p>
+</div>
+<div class="bg-surface-container p-3 rounded-lg">
+<div class="flex justify-between font-label-md mb-1">
+<span>Web Engagement</span>
+<span class="text-emerald-600">+28 pts</span>
+</div>
+<p class="text-[12px] text-secondary">Repeated visits to "High-Efficiency Chiller" product pages and spec-sheet downloads.</p>
+</div>
+<div class="bg-surface-container p-3 rounded-lg">
+<div class="flex justify-between font-label-md mb-1">
+<span>Account History</span>
+<span class="text-emerald-600">+21 pts</span>
+</div>
+<p class="text-[12px] text-secondary">100% renewal rate over 5 years. Currently at end-of-lifecycle for existing fleet.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-6 border-t border-surface-variant">
+<p class="font-label-sm text-label-sm text-secondary uppercase tracking-widest mb-3">Recommended Strategy</p>
+<div class="bg-primary text-on-primary p-4 rounded-xl">
+<p class="font-body-md text-body-md font-medium leading-snug">"Executive Outreach: Send a personalized reliability projection report for the V-Series Multi HVAC."</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        function showBreakdown(name, score, intent, voc) {
+            const panel = document.getElementById('aiBreakdown');
+            panel.classList.remove('hidden');
+            document.getElementById('targetName').innerText = name;
+            document.getElementById('targetScore').innerText = score;
+            document.getElementById('vocInsight').innerText = voc;
+            
+            // Add a subtle entrance animation
+            panel.style.transform = 'translateX(20px)';
+            panel.style.opacity = '0';
+            setTimeout(() => {
+                panel.style.transform = 'translateX(0)';
+                panel.style.opacity = '1';
+            }, 10);
+        }
+
+        // Active selection highlighting logic for table rows
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('click', () => {
+                document.querySelectorAll('tbody tr').forEach(r => {
+                    r.classList.remove('bg-secondary-container/10', 'border-l-4', 'border-primary');
+                });
+                row.classList.add('bg-secondary-container/10', 'border-l-4', 'border-primary');
+            });
+        });
+    </script>
+</body></html>

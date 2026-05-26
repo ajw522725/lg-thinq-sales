@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.DS_Store
+node_modules/
+.next/
+tsconfig.tsbuildinfo
+dist/
+build/
+.env
+.env.local
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
