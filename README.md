@@ -19,7 +19,7 @@ LG ThinQ-Sales는 VOC, SNS, 공공·외부 데이터를 통합 수집·분석하
 
 - Frontend: Next.js, React, TypeScript, Tailwind CSS, Recharts
 - Backend: Python, FastAPI, Pydantic
-- Database: PostgreSQL 구성 포함, 현재 코드는 demo/in-memory 모드
+- Database: PostgreSQL, SQLAlchemy
 - Local Infra: Docker Compose
 
 ## 프로젝트 구조
@@ -52,18 +52,72 @@ lg-thinq-sales/
 
 ## 백엔드 실행
 
+PostgreSQL을 먼저 실행합니다. Docker가 있으면 다음 명령을 사용합니다.
+
 ```bash
-cd /Users/jwa/lg-thinq-sales/apps/api
-python3 -m venv ../../.venv
-source ../../.venv/bin/activate
-pip install -r requirements.txt
+cd /Users/jwa/lg-thinq-sales
+docker compose up -d postgres
+```
+
+Docker 없이 macOS 로컬 PostgreSQL을 사용할 경우 다음처럼 설치하고 실행합니다.
+
+```bash
+brew install postgresql@16
+brew services start postgresql@16
+echo 'export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"' >> ~/.zshrc
+```
+
+프로젝트 기본 DB 계정과 데이터베이스를 생성합니다.
+
+```bash
+psql -d postgres -c "CREATE ROLE lg_thinq LOGIN PASSWORD 'lg_thinq';"
+createdb -O lg_thinq lg_thinq_sales
+psql -d postgres -c "GRANT ALL PRIVILEGES ON DATABASE lg_thinq_sales TO lg_thinq;"
+psql -d lg_thinq_sales -c "GRANT ALL ON SCHEMA public TO lg_thinq;"
+```
+
+기본 DB 연결 주소는 다음과 같습니다.
+
+```bash
+DATABASE_URL=postgresql+psycopg://lg_thinq:lg_thinq@localhost:5432/lg_thinq_sales
+```
+
+백엔드를 실행합니다.
+
+```bash
+cd /Users/jwa/lg-thinq-sales
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r apps/api/requirements.txt
 PYTHONPATH=/Users/jwa/lg-thinq-sales:/Users/jwa/lg-thinq-sales/apps/api uvicorn app.main:app --reload --port 8000
 ```
 
 Demo data 재적재:
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/demo/seed
+curl -X POST "http://localhost:8000/api/v1/demo/seed?reset=true"
+```
+
+Collector 결과를 직접 넣을 수도 있습니다.
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/ingestion/vocs" \
+  -H "Content-Type: application/json" \
+  -d '[{"source":"Danawa","external_id":"manual-001","title":"VOC","content":"I want to buy LG air purifier because fine dust is bad.","url":"https://example.com","published_at":"2026-05-20T09:10:00Z","product_category":"Air Purifier","region":"Seoul","engagement":12}]'
+```
+
+## TablePlus 접속
+
+로컬 DB를 GUI로 확인할 때는 TablePlus에서 PostgreSQL connection을 만들고 다음 값을 입력합니다.
+
+```text
+Name: LG ThinQ Sales Local
+Host: localhost
+Port: 5432
+User: lg_thinq
+Password: lg_thinq
+Database: lg_thinq_sales
+SSL Mode: Disable
 ```
 
 ## 프론트엔드 실행
@@ -92,13 +146,14 @@ docker compose up
 - `GET /api/v1/lead-scores`
 - `GET /api/v1/insights`
 - `POST /api/v1/demo/seed`
+- `POST /api/v1/ingestion/vocs`
 
 ## 현재 demo/stub 처리된 기능
 
-- 실제 Danawa, Reddit, Naver Blog, YouTube, X/Twitter 수집은 아직 구현하지 않았습니다.
+- 실제 Danawa, Reddit, Naver Blog, YouTube, X/Twitter 수집은 아직 구현하지 않았습니다. 다만 collector output을 받을 `POST /api/v1/ingestion/vocs` endpoint는 준비되어 있습니다.
 - 실제 OpenAI/Gemini API 호출은 하지 않습니다.
 - 실제 기상청, AirKorea, 전기요금, 입주물량 API는 아직 연결하지 않았습니다.
-- PostgreSQL 컨테이너는 제공하지만 API 저장소는 현재 in-memory demo store입니다.
+- PostgreSQL + SQLAlchemy 저장 구조를 사용합니다. migration은 아직 Alembic이 아니라 `Base.metadata.create_all()` 방식입니다.
 - CRM/ERP 연동, 자동 이메일/문자 발송, 실시간 스트리밍은 MVP 범위에서 제외했습니다.
 
 ## 현재 구현된 end-to-end 흐름
@@ -112,13 +167,14 @@ Demo VOC 수집
 → lead score 계산
 → demo 외부 맥락 매칭
 → demo strategy insight 생성
+→ PostgreSQL 저장
 → FastAPI endpoint 제공
 → Next.js dashboard 화면 렌더링
 ```
 
 ## 다음 구현 추천 단계
 
-1. SQLAlchemy 모델과 PostgreSQL 저장소를 추가합니다.
+1. Alembic migration 체계를 추가합니다.
 2. demo pipeline을 batch job 형태로 분리합니다.
 3. Danawa 또는 Reddit connector 하나를 실제 수집기로 구현합니다.
 4. 외부 데이터 매칭을 기상청/AirKorea demo adapter부터 확장합니다.
