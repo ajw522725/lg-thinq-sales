@@ -10,6 +10,7 @@ import logging
 from ..nlp.models import NLPAnalysisResult, ProcessedVOCInput
 from .features import build_feature_vector
 from .rule_based import rule_based_score
+from .xgboost_scorer import xgb_score
 from .models import LeadScoreResult
 
 logger = logging.getLogger(__name__)
@@ -36,8 +37,8 @@ def run_lead_scoring(
     # 1. Feature Vector 생성
     features = build_feature_vector(nlp, voc, external_context_score)
 
-    # 2. 룰 기반 점수 산출 (Phase 4에서 XGBoost로 보정)
-    result = rule_based_score(features)
+    # 2. 점수 산출 (USE_ML_MODELS=true + 모델 파일 있으면 XGBoost, 그 외 rule-based)
+    result = xgb_score(features) or rule_based_score(features)
 
     logger.info(
         f"Lead Score 완료: voc_id={nlp.voc_id} | "

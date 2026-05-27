@@ -14,6 +14,7 @@ from .models import (
 )
 from .preprocessor import preprocess
 from .sentiment import analyze_sentiment
+from .sentiment_ml import analyze_sentiment_ml
 from .intent import detect_purchase_intent
 from .complaint import classify_complaint
 from .urgency import analyze_urgency
@@ -43,8 +44,8 @@ def run_nlp_pipeline(voc: ProcessedVOCInput) -> NLPAnalysisResult:
     text = preprocessed.cleaned_text
     lang = preprocessed.language
 
-    # 2. 감성분석
-    sentiment = analyze_sentiment(text, lang, rating=voc.rating)
+    # 2. 감성분석 (USE_ML_MODELS=true 시 KoBERT, 그 외 rule-based)
+    sentiment = analyze_sentiment_ml(text, lang, rating=voc.rating)
 
     # 3. 구매의도 탐지
     intent = detect_purchase_intent(text, lang)

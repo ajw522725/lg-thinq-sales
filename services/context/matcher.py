@@ -108,17 +108,113 @@ def _demo_context_match(voc: ProcessedVOCInput) -> ContextEnrichmentResult:
     )
 
 
+def fetch_and_match(voc: ProcessedVOCInput) -> ContextEnrichmentResult:
+    """
+    Phase 5: 실제 공공 API를 호출해서 VOC와 매핑.
+    API 키 없거나 호출 실패 시 _demo_context_match() fallback.
+    """
+    from .api_client import fetch_weather, fetch_air_quality
+
+    relevant_types = PRODUCT_CONTEXT_MAP.get(
+        voc.product_category, PRODUCT_CONTEXT_MAP["default"]
+    )
+    region = _extract_region(voc.normalized_text)
+    date = voc.published_at
+
+    fetched: list[ExternalContextData] = []
+    if "weather" in relevant_types:
+        w = fetch_weather(region, date)
+        if w:
+            fetched.append(w)
+    if "air_quality" in relevant_types:
+        a = fetch_air_quality(region)
+        if a:
+            fetched.append(a)
+
+    if not fetched:
+        return _demo_context_match(voc)
+
+    return _real_context_match(voc, fetched)
+
+
 def _real_context_match(
     voc: ProcessedVOCInput,
     contexts: list[ExternalContextData],
 ) -> ContextEnrichmentResult:
-    """
-    Phase 5 구현 예정 — 실제 외부 데이터 기반 매핑
+    """실제 외부 데이터 기반 매핑 (TRD 10.2)"""
+    matches: list[ContextMatchResult] = []
+    total_score = 0.0
 
-    매핑 기준 (TRD 10.2):
-    - 시간: VOC 작성일 ±7일
-    - 지역: 명시 지역 → 없으면 수도권 평균
-    - 제품군: PRODUCT_CONTEXT_MAP 기준
-    """
-    # TODO Phase 5
-    raise NotImplementedError("Phase 5에서 구현 예정 — 실제 공공 API 데이터 필요")
+    for ctx in contexts:
+        score = _score_context_relevance(voc, ctx)
+        if score > 0:
+            matches.append(ContextMatchResult(
+                voc_id=voc.id,
+                external_context_id=ctx.id,
+                match_reason=f"제품군({voc.product_category}) + {ctx.context_type}",
+                match_score=score,
+                context_type=ctx.context_type,
+                context_summary=_summarize_context(ctx),
+            ))
+            total_score += score
+
+    aggregated = round(min(total_score / max(len(matches), 1), 1.0), 4)
+    description = ", ".join(f"{m.context_type}(score={m.match_score:.2f})" for m in matches)
+
+    return ContextEnrichmentResult(
+        voc_id=voc.id,
+        matches=matches,
+        aggregated_context_score=aggregated,
+        context_description=description or "연관 외부 데이터 없음",
+    )
+
+
+def _score_context_relevance(voc: ProcessedVOCInput, ctx: ExternalContextData) -> float:
+    """VOC-Context 연관도 점수 (0~1)"""
+    relevant_types = PRODUCT_CONTEXT_MAP.get(voc.product_category, [])
+    if ctx.context_type not in relevant_types:
+        return 0.0
+
+    base = 0.4
+    text_lower = voc.normalized_text.lower()
+    bonus = sum(
+        0.15 for kw, t in KEYWORD_CONTEXT_MAP.items()
+        if kw in text_lower and t == ctx.context_type
+    )
+
+    # 날씨: 여름/겨울 에어컨/제습기 → 높은 연관도
+    if ctx.context_type == "weather":
+        temp = ctx.data.get("temperature") or ctx.data.get("season", "")
+        season = ctx.data.get("season", "")
+        if season in ("여름", "겨울") and voc.product_category in ("air_conditioner", "dehumidifier"):
+            bonus += 0.2
+
+    # 공기질: 나쁨 등급 + 공기청정기
+    if ctx.context_type == "air_quality":
+        grade = str(ctx.data.get("grade", ""))
+        if grade in ("나쁨", "매우나쁨", "4", "3") and voc.product_category == "air_purifier":
+            bonus += 0.25
+
+    return round(min(base + bonus, 1.0), 4)
+
+
+def _extract_region(text: str) -> str | None:
+    """텍스트에서 지역명 추출"""
+    regions = ["서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종",
+               "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"]
+    for r in regions:
+        if r in text:
+            return r
+    return None
+
+
+def _summarize_context(ctx: ExternalContextData) -> str:
+    if ctx.context_type == "weather":
+        temp = ctx.data.get("temperature", "?")
+        season = ctx.data.get("season", "")
+        return f"기온 {temp}도, {season}" if season else f"기온 {temp}도"
+    if ctx.context_type == "air_quality":
+        pm25 = ctx.data.get("pm25", "?")
+        grade = ctx.data.get("grade", "?")
+        return f"PM2.5 {pm25}μg, 등급 {grade}"
+    return str(ctx.data)
