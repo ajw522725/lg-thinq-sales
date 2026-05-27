@@ -17,10 +17,46 @@ body {
   background: #f7f9ff;
   color: #181c20;
   font-family: Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
+/* AI Glow — DESIGN.md 기준 */
 .ai-glow {
   border: 1px solid rgba(122, 0, 36, 0.12);
   background: linear-gradient(135deg, #ffffff 0%, rgba(122, 0, 36, 0.035) 100%);
-  box-shadow: inset 0 0 20px rgba(122, 0, 36, 0.04), 0 8px 32px rgba(0, 0, 0, 0.04);
+  box-shadow: inset 0 0 24px rgba(122, 0, 36, 0.04), 0 8px 32px rgba(0, 0, 0, 0.04);
+}
+
+/* 스크롤바 */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e0e3e8; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #c8cbd0; }
+
+/* 페이지 진입 애니메이션 */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+main > * {
+  animation: fadeUp 0.35s ease both;
+}
+
+main > *:nth-child(1) { animation-delay: 0ms; }
+main > *:nth-child(2) { animation-delay: 60ms; }
+main > *:nth-child(3) { animation-delay: 120ms; }
+main > *:nth-child(4) { animation-delay: 180ms; }
+main > *:nth-child(5) { animation-delay: 240ms; }
+
+/* 포커스 링 */
+:focus-visible {
+  outline: 2px solid rgba(122, 0, 36, 0.5);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 테이블 행 hover 트랜지션 */
+tbody tr {
+  transition: background-color 0.15s ease;
 }
