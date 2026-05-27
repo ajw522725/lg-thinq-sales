@@ -9,6 +9,8 @@ VOC 텍스트 전처리 — 정규화, 중복 제거, 품질 필터링.
   - 중복 제거 (정확 일치 + 유사도 기반)
   - 경쟁사 언급 탐지 (platform_meta 보완)
 """
+from __future__ import annotations
+
 import hashlib
 import re
 from typing import Optional
@@ -38,6 +40,8 @@ _COMPETITOR_KEYWORDS = {
     "블루에어": "Blueair", "blueair": "Blueair",
 }
 
+SPACE_PATTERN = re.compile(r"\s+")
+
 
 def normalize_text(text: str) -> str:
     """텍스트를 정규화한다."""
@@ -47,6 +51,15 @@ def normalize_text(text: str) -> str:
     text = _MULTI_SPACE.sub(" ", text)
     text = _MULTI_NEWLINE.sub("\n\n", text)
     return text.strip()
+
+
+def clean_text(text: str) -> str:
+    """Backward-compatibility alias for normalize_text."""
+    cleaned = _HTML_TAG.sub(" ", text)
+    cleaned = _URL_PATTERN.sub(" ", cleaned)
+    cleaned = cleaned.replace("​", " ")
+    cleaned = SPACE_PATTERN.sub(" ", cleaned)
+    return cleaned.strip()
 
 
 def is_quality(text: str, min_len: int = 30) -> bool:
