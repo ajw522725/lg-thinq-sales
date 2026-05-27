@@ -35,9 +35,11 @@ DATABASE_URL=postgresql+psycopg://lg_thinq:lg_thinq@localhost:5432/lg_thinq_sale
 cd /Users/jwa/lg-thinq-sales
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r apps/api/requirements.txt
+pip install -r requirements.txt
 PYTHONPATH=/Users/jwa/lg-thinq-sales:/Users/jwa/lg-thinq-sales/apps/api uvicorn app.main:app --reload --port 8000
 ```
+
+API 서버만 최소 실행할 때는 `pip install -r apps/api/requirements.txt`를 사용할 수 있습니다. collector runner까지 확인하려면 루트 `requirements.txt`를 설치하세요.
 
 ## Demo seed
 
@@ -67,6 +69,40 @@ curl -X POST "http://localhost:8000/api/v1/ingestion/vocs" \
 - `GET /api/v1/insights`
 - `POST /api/v1/demo/seed`
 - `POST /api/v1/ingestion/vocs`
+- `POST /api/v1/nlp/analyze`
+- `POST /api/v1/pipeline/run`
+- `GET /api/v1/demo/run`
+
+## NLP / Pipeline 단독 확인
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/nlp/analyze" \
+  -H "Content-Type: application/json" \
+  -d '{"text":"미세먼지가 심해서 LG 공기청정기를 구매하려고 합니다.","source":"naver_blog","language":"ko","product_category":"air_purifier","product_keyword":"LG 퓨리케어","engagement":12,"platform_meta":{"view_count":1200}}'
+
+curl -X POST "http://localhost:8000/api/v1/pipeline/run" \
+  -H "Content-Type: application/json" \
+  -d '{"text":"미세먼지가 심해서 LG 공기청정기를 구매하려고 합니다.","source":"naver_blog","language":"ko","product_category":"air_purifier","product_keyword":"LG 퓨리케어","engagement":12,"platform_meta":{"view_count":1200}}'
+
+curl "http://localhost:8000/api/v1/demo/run"
+```
+
+## Collector demo 확인
+
+```bash
+cd /Users/jwa/lg-thinq-sales
+source .venv/bin/activate
+USE_DEMO_DATA=true PYTHONPATH=/Users/jwa/lg-thinq-sales \
+  python -m services.collectors.runner --keyword "LG 공기청정기" --max 2 --no-save
+```
+
+현재 demo 기준 확인값:
+
+```text
+raw 42건
+processed 약 41건
+Danawa / Reddit / NaverBlog / YouTube demo source 정상 실행
+```
 
 ## TablePlus 접속
 
@@ -84,6 +120,15 @@ SSL Mode: Disable
 ## 검증
 
 ```bash
-PYTHONPATH=/Users/jwa/lg-thinq-sales:/Users/jwa/lg-thinq-sales/apps/api python -m compileall apps/api/app services
+PYTHONPATH=/Users/jwa/lg-thinq-sales:/Users/jwa/lg-thinq-sales/apps/api python -m compileall apps/api/app services scripts
 curl http://localhost:8000/api/v1/dashboard/summary
+```
+
+Codex 최종 확인 결과:
+
+```text
+compileall: 통과
+API smoke test: health, seed, dashboard, vocs, voc stats, lead scores, insights, nlp, pipeline, demo run 모두 200
+collector demo runner: 통과
+collector demo output -> ingestion endpoint -> DB 저장: 통과
 ```
