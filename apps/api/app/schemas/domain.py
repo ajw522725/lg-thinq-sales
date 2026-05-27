@@ -136,3 +136,17 @@ class SeedResponse(BaseModel):
     raw_documents: int
     processed_documents: int
     insights: int
+
+
+class IngestionVOC(BaseModel):
+    source: str
+    external_id: str
+    title: str
+    content: str
+    url: str
+    published_at: datetime
+    product_category: str
+    region: Optional[str] = None
+    engagement: int = 0
+    author_hash: str = "collector_demo_author"
+    rating: Optional[int] = None

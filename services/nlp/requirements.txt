@@ -1,0 +1,42 @@
+# NLP Core
+transformers==4.41.2
+torch==2.3.1
+sentence-transformers==3.0.1
+bertopic==0.16.2
+
+# Korean NLP
+konlpy==0.6.0
+
+# ML / Scoring
+xgboost==2.0.3
+scikit-learn==1.5.0
+numpy==1.26.4
+pandas==2.2.2
+
+# Language Detection
+langdetect==1.0.9
+
+# Keyword Extraction
+keybert==0.8.4
+keyphrase-vectorizers==0.0.13
+
+# LLM API
+openai==1.35.7
+google-generativeai==0.7.2
+
+# Database
+sqlalchemy==2.0.31
+asyncpg==0.29.0
+psycopg2-binary==2.9.9
+
+# Validation / Util
+pydantic==2.7.4
+python-dotenv==1.0.1
+httpx==0.27.0
+
+# Scheduler
+apscheduler==3.10.4
+
+# Testing
+pytest==8.2.2
+pytest-asyncio==0.23.7
