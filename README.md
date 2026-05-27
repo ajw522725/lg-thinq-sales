@@ -52,11 +52,34 @@ lg-thinq-sales/
 
 ## 백엔드 실행
 
-PostgreSQL을 먼저 실행합니다.
+PostgreSQL을 먼저 실행합니다. Docker가 있으면 다음 명령을 사용합니다.
 
 ```bash
 cd /Users/jwa/lg-thinq-sales
 docker compose up -d postgres
+```
+
+Docker 없이 macOS 로컬 PostgreSQL을 사용할 경우 다음처럼 설치하고 실행합니다.
+
+```bash
+brew install postgresql@16
+brew services start postgresql@16
+echo 'export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"' >> ~/.zshrc
+```
+
+프로젝트 기본 DB 계정과 데이터베이스를 생성합니다.
+
+```bash
+psql -d postgres -c "CREATE ROLE lg_thinq LOGIN PASSWORD 'lg_thinq';"
+createdb -O lg_thinq lg_thinq_sales
+psql -d postgres -c "GRANT ALL PRIVILEGES ON DATABASE lg_thinq_sales TO lg_thinq;"
+psql -d lg_thinq_sales -c "GRANT ALL ON SCHEMA public TO lg_thinq;"
+```
+
+기본 DB 연결 주소는 다음과 같습니다.
+
+```bash
+DATABASE_URL=postgresql+psycopg://lg_thinq:lg_thinq@localhost:5432/lg_thinq_sales
 ```
 
 백엔드를 실행합니다.
@@ -81,6 +104,20 @@ Collector 결과를 직접 넣을 수도 있습니다.
 curl -X POST "http://localhost:8000/api/v1/ingestion/vocs" \
   -H "Content-Type: application/json" \
   -d '[{"source":"Danawa","external_id":"manual-001","title":"VOC","content":"I want to buy LG air purifier because fine dust is bad.","url":"https://example.com","published_at":"2026-05-20T09:10:00Z","product_category":"Air Purifier","region":"Seoul","engagement":12}]'
+```
+
+## TablePlus 접속
+
+로컬 DB를 GUI로 확인할 때는 TablePlus에서 PostgreSQL connection을 만들고 다음 값을 입력합니다.
+
+```text
+Name: LG ThinQ Sales Local
+Host: localhost
+Port: 5432
+User: lg_thinq
+Password: lg_thinq
+Database: lg_thinq_sales
+SSL Mode: Disable
 ```
 
 ## 프론트엔드 실행
