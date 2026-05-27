@@ -3,6 +3,8 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.api.v1.endpoints.nlp import router as nlp_router
+from app.api.v1.endpoints.pipeline import router as pipeline_router
 from app.core.config import settings
 from app.db.session import get_db
 from app.repositories.dashboard_repository import build_dashboard_summary, build_voc_stats
@@ -14,7 +16,12 @@ router = APIRouter(prefix=settings.api_prefix)
 
 @router.get("/health")
 def health() -> dict[str, str]:
-    return {"status": "ok", "mode": "demo" if settings.demo_mode else "production"}
+    return {
+        "status": "ok",
+        "mode": "demo" if settings.demo_mode else "production",
+        "llm_provider": settings.llm_provider,
+        "version": settings.version,
+    }
 
 
 @router.get("/dashboard/summary", response_model=DashboardSummary)
@@ -50,3 +57,7 @@ def seed_demo(reset: bool = False, db: Session = Depends(get_db)) -> SeedRespons
 @router.post("/ingestion/vocs", response_model=SeedResponse)
 def ingest_collector_vocs(vocs: list[IngestionVOC], reset: bool = False, db: Session = Depends(get_db)) -> SeedResponse:
     return ingest_vocs(db, vocs, reset=reset)
+
+
+router.include_router(pipeline_router)
+router.include_router(nlp_router)
