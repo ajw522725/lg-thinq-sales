@@ -1,0 +1,37 @@
+# 환경변수 (절대 커밋 금지)
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# 수집 원본 데이터 (용량 크고 민감)
+data/raw/
+data/processed/
+
+# 단, demo 데이터는 커밋 포함
+!data/demo/
+
+# Node
+node_modules/
+.next/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 로그
+*.log
+logs/
