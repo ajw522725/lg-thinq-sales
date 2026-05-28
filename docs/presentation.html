@@ -361,7 +361,11 @@
     flex: 1; text-align: center;
     font-size: 10px; color: var(--secondary); font-weight: 500;
     font-family: monospace;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s;
   }
+  .screen-bar .url:hover { color: var(--primary); text-decoration: underline; }
   .screen-content { flex: 1; padding: 14px; overflow: hidden; }
 
   /* mini mock dashboard */
@@ -490,7 +494,11 @@
     color: #fff;
     border-radius: 8px;
     padding: 10px 18px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s;
   }
+  .s-qa .qa-link:hover { background: rgba(255,255,255,0.22); }
 
   .slide-number {
     position: absolute;
@@ -739,7 +747,7 @@
             <span style="background:#ff5f57"></span>
             <span style="background:#febc2e"></span>
             <span style="background:#28c840"></span>
-            <span class="url">localhost:3000</span>
+            <a class="url" href="http://localhost:3000" target="_blank">localhost:3000</a>
           </div>
           <div class="screen-content">
             <div class="mock-kpi">
@@ -812,7 +820,7 @@
             <span style="background:#ff5f57"></span>
             <span style="background:#febc2e"></span>
             <span style="background:#28c840"></span>
-            <span class="url">localhost:3000/voc</span>
+            <a class="url" href="http://localhost:3000/voc" target="_blank">localhost:3000/voc</a>
           </div>
           <div class="screen-content">
             <div class="mock-filters">
@@ -874,7 +882,7 @@
             <span style="background:#ff5f57"></span>
             <span style="background:#febc2e"></span>
             <span style="background:#28c840"></span>
-            <span class="url">localhost:3000/lead-scoring</span>
+            <a class="url" href="http://localhost:3000/lead-scoring" target="_blank">localhost:3000/lead-scoring</a>
           </div>
           <div class="screen-content">
             <div class="mock-lead-layout">
@@ -947,7 +955,7 @@
             <span style="background:#ff5f57"></span>
             <span style="background:#febc2e"></span>
             <span style="background:#28c840"></span>
-            <span class="url">localhost:3000/strategy-insights</span>
+            <a class="url" href="http://localhost:3000/strategy-insights" target="_blank">localhost:3000/strategy-insights</a>
           </div>
           <div class="screen-content">
             <div class="mock-insight-featured">
@@ -1054,9 +1062,9 @@
           <div class="qa-main">감사합니다</div>
           <div class="qa-sub">LG ThinQ-Sales — AI 기반 영업 전략 운영 플랫폼</div>
           <div class="qa-links">
-            <span class="qa-link">🖥️ localhost:3000 — 라이브 데모</span>
-            <span class="qa-link">⚙️ localhost:8000/docs — API Docs</span>
-            <span class="qa-link">📦 github.com/ajw522725/lg-thinq-sales</span>
+            <a class="qa-link" href="http://localhost:3000" target="_blank">🖥️ localhost:3000 — 라이브 데모</a>
+            <a class="qa-link" href="http://localhost:8000/docs" target="_blank">⚙️ localhost:8000/docs — API Docs</a>
+            <a class="qa-link" href="https://github.com/ajw522725/lg-thinq-sales" target="_blank">📦 github.com/ajw522725/lg-thinq-sales</a>
           </div>
         </div>
       </div>
