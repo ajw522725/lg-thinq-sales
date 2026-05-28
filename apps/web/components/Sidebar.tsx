@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { NewAnalysisModal } from "./NewAnalysisModal";
 
 const navItems = [
   { href: "/",                   label: "Dashboard",         icon: "◫" },
@@ -12,6 +14,7 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [showModal, setShowModal] = useState(false);
 
   return (
     <aside className="fixed left-0 top-0 z-50 flex h-screen w-72 flex-col bg-surface-low px-5 py-6 border-r border-surface-high">
@@ -61,10 +64,14 @@ export function Sidebar() {
         <button className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-secondary hover:bg-white hover:text-charcoal transition-colors">
           ⚙ Settings
         </button>
-        <button className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white shadow-lg shadow-primary/25 hover:bg-primary-strong transition-colors">
+        <button
+          onClick={() => setShowModal(true)}
+          className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white shadow-lg shadow-primary/25 hover:bg-primary-strong transition-colors"
+        >
           ＋ New Analysis
         </button>
       </div>
+      {showModal && <NewAnalysisModal onClose={() => setShowModal(false)} />}
     </aside>
   );
 }
