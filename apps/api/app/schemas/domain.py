@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Literal, Optional, Union
+from typing import Any, Literal, Optional
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -79,7 +79,7 @@ class LeadScore(BaseModel):
     voc_id: UUID
     lead_score: int
     priority: PriorityLabel
-    score_reason: dict[str, Union[float, int]]
+    score_reason: dict[str, Any]
     model_version: str = "lead-score-v1"
     created_at: datetime = Field(default_factory=datetime.utcnow)
 

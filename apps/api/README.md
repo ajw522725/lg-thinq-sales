@@ -27,7 +27,12 @@ psql -d lg_thinq_sales -c "GRANT ALL ON SCHEMA public TO lg_thinq;"
 
 ```bash
 DATABASE_URL=postgresql+psycopg://lg_thinq:lg_thinq@localhost:5432/lg_thinq_sales
+DEMO_MODE=true
+LLM_PROVIDER=demo
+DB_PIPELINE_PROVIDER=legacy
 ```
+
+`DB_PIPELINE_PROVIDER=legacy`는 기존 DB seed/ingestion용 rule-based pipeline을 사용합니다. `DB_PIPELINE_PROVIDER=yuna`로 실행하면 `services/nlp`, `services/scoring`, `services/insights`의 통합 pipeline으로 분석 결과를 DB에 저장합니다.
 
 백엔드를 실행합니다.
 
@@ -37,6 +42,14 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 PYTHONPATH=/Users/jwa/lg-thinq-sales:/Users/jwa/lg-thinq-sales/apps/api uvicorn app.main:app --reload --port 8000
+```
+
+yuna pipeline 검증 실행:
+
+```bash
+DB_PIPELINE_PROVIDER=yuna \
+PYTHONPATH=/Users/jwa/lg-thinq-sales:/Users/jwa/lg-thinq-sales/apps/api \
+  uvicorn app.main:app --reload --port 8000
 ```
 
 API 서버만 최소 실행할 때는 `pip install -r apps/api/requirements.txt`를 사용할 수 있습니다. collector runner까지 확인하려면 루트 `requirements.txt`를 설치하세요.

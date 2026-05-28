@@ -74,6 +74,13 @@ POST /api/v1/demo/seed?reset=true
 - `reset=true`: 기존 demo pipeline 데이터를 삭제하고 다시 생성합니다.
 - `reset=false` 또는 생략: 이미 저장된 `source + external_id` 조합은 중복 저장하지 않습니다.
 
+DB 저장 pipeline은 환경변수 `DB_PIPELINE_PROVIDER`로 선택합니다.
+
+- `legacy`: 기존 Phase 1 rule-based pipeline입니다. 기본값입니다.
+- `yuna`: `services/nlp`, `services/scoring`, `services/insights`의 통합 pipeline을 사용합니다.
+
+두 모드 모두 API response shape은 `VocRecord`, `DashboardSummary`, `StrategyInsight` 계약을 유지해야 합니다.
+
 ## NLP / Pipeline 단독 실행 계약
 
 AI/NLP 담당 pipeline은 DB 저장 pipeline과 별도로 다음 endpoint에서 단독 확인할 수 있습니다.
@@ -325,7 +332,7 @@ PYTHONPATH=/Users/jwa/lg-thinq-sales \
 - LLM 연동 시에도 `StrategyInsight` JSON 구조는 유지합니다.
 - hallucination 방지를 위해 VOC 원문, 분석 결과, context match에 없는 내용은 생성하지 않습니다.
 - 현재 `/api/v1/nlp/analyze`, `/api/v1/pipeline/run`, `/api/v1/demo/run`은 단독 검증용입니다.
-- 다음 단계에서는 DB seed/ingestion pipeline에서도 yuna NLP/Scoring/Insight pipeline을 선택적으로 사용할 수 있게 연결해야 합니다.
+- DB seed/ingestion pipeline은 `DB_PIPELINE_PROVIDER=yuna` 설정으로 yuna NLP/Scoring/Insight pipeline을 선택적으로 사용합니다.
 
 ### Frontend 담당
 

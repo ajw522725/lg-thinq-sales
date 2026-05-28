@@ -80,7 +80,15 @@ psql -d lg_thinq_sales -c "GRANT ALL ON SCHEMA public TO lg_thinq;"
 
 ```bash
 DATABASE_URL=postgresql+psycopg://lg_thinq:lg_thinq@localhost:5432/lg_thinq_sales
+DEMO_MODE=true
+LLM_PROVIDER=demo
+DB_PIPELINE_PROVIDER=legacy
 ```
+
+`DB_PIPELINE_PROVIDER`는 DB 저장 pipeline에서 사용할 분석 엔진을 선택합니다.
+
+- `legacy`: 기존 Phase 1 rule-based NLP/Scoring/Insight 흐름입니다. 기본값입니다.
+- `yuna`: `services/nlp`, `services/scoring`, `services/insights`의 통합 pipeline을 사용합니다.
 
 백엔드를 실행합니다.
 
@@ -90,6 +98,14 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 PYTHONPATH=/Users/jwa/lg-thinq-sales:/Users/jwa/lg-thinq-sales/apps/api uvicorn app.main:app --reload --port 8000
+```
+
+yuna pipeline으로 seed/ingestion을 검증할 때는 다음처럼 실행합니다.
+
+```bash
+DB_PIPELINE_PROVIDER=yuna \
+PYTHONPATH=/Users/jwa/lg-thinq-sales:/Users/jwa/lg-thinq-sales/apps/api \
+  uvicorn app.main:app --reload --port 8000
 ```
 
 API만 최소 실행할 경우에는 `pip install -r apps/api/requirements.txt`도 가능합니다. 다만 collector까지 함께 확인하려면 루트 `requirements.txt`를 사용하세요.
@@ -291,7 +307,7 @@ VOC text
 ### `yuna0822` AI/NLP
 
 - `/api/v1/nlp/analyze`, `/api/v1/pipeline/run`, `/api/v1/demo/run`이 main에서 계속 200 응답인지 확인합니다.
-- 다음 단계에서는 DB seed/ingestion pipeline이 yuna pipeline을 선택적으로 사용하도록 연결합니다.
+- `DB_PIPELINE_PROVIDER=yuna` 실행 시 seed/ingestion 결과가 기대한 NLP/Scoring/Insight 품질로 나오는지 확인합니다.
 - 기존 frontend가 사용하는 `VocRecord`, `DashboardSummary`, `StrategyInsight` 응답 구조는 깨지 않도록 유지합니다.
 
 ### `sksmsdngml-ui` Frontend
@@ -304,12 +320,11 @@ VOC text
 
 - main merge 후 `compileall`, API smoke test, frontend build를 실행합니다.
 - TablePlus에서 seed/ingestion 후 `raw_documents`, `processed_vocs`, `lead_scores`, `strategy_insights` row count를 확인합니다.
-- collector ingestion과 yuna pipeline을 하나의 DB 저장 pipeline으로 통합하는 작업을 다음 우선순위로 둡니다.
+- `legacy`, `yuna` 두 DB pipeline provider가 모두 seed/ingestion에서 깨지지 않는지 확인합니다.
 
 ## 다음 구현 추천 단계
 
-1. DB seed/ingestion pipeline에 yuna NLP/Scoring/Insight pipeline을 선택적으로 연결합니다.
-2. Alembic migration 체계를 추가합니다.
-3. Danawa 또는 Reddit live connector를 하나만 우선 안정화합니다.
-4. 외부 데이터 매칭을 기상청/AirKorea demo adapter부터 확장합니다.
-5. LLM gateway를 추가하되 demo mode와 production mode를 명확히 분리합니다.
+1. Alembic migration 체계를 추가합니다.
+2. Danawa 또는 Reddit live connector를 하나만 우선 안정화합니다.
+3. 외부 데이터 매칭을 기상청/AirKorea demo adapter부터 확장합니다.
+4. LLM gateway를 추가하되 demo mode와 production mode를 명확히 분리합니다.
