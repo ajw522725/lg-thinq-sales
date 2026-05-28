@@ -176,6 +176,22 @@ YouTube 10건
 
 collector 결과를 API DB 저장 흐름까지 확인하려면 `POST /api/v1/ingestion/vocs` 입력 계약에 맞춰 전송해야 합니다. 자세한 계약은 `docs/API_CONTRACT.md`를 확인하세요.
 
+API 서버가 실행 중이면 아래 스크립트로 collector demo output을 ingestion endpoint에 바로 적재할 수 있습니다.
+
+```bash
+cd /Users/jwa/lg-thinq-sales
+source .venv/bin/activate
+PYTHONPATH=/Users/jwa/lg-thinq-sales \
+  python scripts/run_collector_ingestion_demo.py --keyword "LG 공기청정기" --max 2 --limit 5 --reset
+```
+
+API 서버 없이 매핑만 확인할 때는 `--dry-run`을 사용합니다.
+
+```bash
+PYTHONPATH=/Users/jwa/lg-thinq-sales \
+  python scripts/run_collector_ingestion_demo.py --keyword "LG 공기청정기" --max 2 --limit 5 --dry-run
+```
+
 ## 통합 검증 명령
 
 팀원은 PR 전 또는 main pull 후 아래 검증을 실행하세요.
@@ -268,7 +284,8 @@ VOC text
 ### `wldnjsrla085` Data Collection
 
 - `USE_DEMO_DATA=true python -m services.collectors.runner ...`가 로컬에서 통과하는지 확인합니다.
-- collector raw output을 `POST /api/v1/ingestion/vocs` 입력 구조로 매핑하는 script를 추가합니다.
+- `scripts/run_collector_ingestion_demo.py --dry-run`으로 collector raw output 매핑을 확인합니다.
+- API 서버 실행 후 `scripts/run_collector_ingestion_demo.py --reset`으로 DB 저장 흐름을 확인합니다.
 - live mode는 API key/session이 없을 때 실패하지 않고 빈 리스트 또는 demo fallback을 반환해야 합니다.
 
 ### `yuna0822` AI/NLP
@@ -291,9 +308,8 @@ VOC text
 
 ## 다음 구현 추천 단계
 
-1. collector output을 `/api/v1/ingestion/vocs`로 자동 전송하는 demo ingestion script를 추가합니다.
-2. DB seed/ingestion pipeline에 yuna NLP/Scoring/Insight pipeline을 선택적으로 연결합니다.
-3. Alembic migration 체계를 추가합니다.
-4. Danawa 또는 Reddit live connector를 하나만 우선 안정화합니다.
-5. 외부 데이터 매칭을 기상청/AirKorea demo adapter부터 확장합니다.
-6. LLM gateway를 추가하되 demo mode와 production mode를 명확히 분리합니다.
+1. DB seed/ingestion pipeline에 yuna NLP/Scoring/Insight pipeline을 선택적으로 연결합니다.
+2. Alembic migration 체계를 추가합니다.
+3. Danawa 또는 Reddit live connector를 하나만 우선 안정화합니다.
+4. 외부 데이터 매칭을 기상청/AirKorea demo adapter부터 확장합니다.
+5. LLM gateway를 추가하되 demo mode와 production mode를 명확히 분리합니다.

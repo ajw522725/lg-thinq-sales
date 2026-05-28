@@ -303,6 +303,22 @@ Collector raw output -> ingestion input 매핑:
 | `platform_meta.rating` 또는 `rating` | `rating` | 선택 |
 | `platform_meta.view_count/comment_count/upvotes/likes/helpful_count` | `engagement` | 정수로 정규화 |
 
+표준 매핑과 API 전송은 다음 스크립트로 확인합니다.
+
+```bash
+cd /Users/jwa/lg-thinq-sales
+source .venv/bin/activate
+PYTHONPATH=/Users/jwa/lg-thinq-sales \
+  python scripts/run_collector_ingestion_demo.py --keyword "LG 공기청정기" --max 2 --limit 5 --reset
+```
+
+지원 옵션:
+
+- `--dry-run`: API 전송 없이 collector raw output -> ingestion payload 매핑만 확인합니다.
+- `--reset`: 전송 전 기존 DB pipeline 데이터를 삭제하고 재적재합니다.
+- `--limit N`: 전송할 VOC 수를 제한합니다.
+- `--live`: `USE_DEMO_DATA=false`로 live collector를 실행합니다. API key/session 설정이 필요할 수 있습니다.
+
 ### AI/NLP 담당
 
 - `services/nlp`, `services/scoring`, `services/insights`의 함수 output shape을 유지합니다.

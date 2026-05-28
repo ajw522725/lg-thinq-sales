@@ -59,6 +59,17 @@ curl -X POST "http://localhost:8000/api/v1/ingestion/vocs" \
   -d '[{"source":"Danawa","external_id":"manual-001","title":"VOC","content":"I want to buy LG air purifier because fine dust is bad.","url":"https://example.com","published_at":"2026-05-20T09:10:00Z","product_category":"Air Purifier","region":"Seoul","engagement":12}]'
 ```
 
+collector runner 결과를 바로 DB pipeline에 넣을 때는 루트에서 다음 스크립트를 실행합니다.
+
+```bash
+cd /Users/jwa/lg-thinq-sales
+source .venv/bin/activate
+PYTHONPATH=/Users/jwa/lg-thinq-sales \
+  python scripts/run_collector_ingestion_demo.py --keyword "LG 공기청정기" --max 2 --limit 5 --reset
+```
+
+API 서버가 꺼져 있을 때 매핑만 확인하려면 `--dry-run`을 붙입니다.
+
 ## Endpoint
 
 - `GET /api/v1/health`
