@@ -10,6 +10,7 @@ LIVE 모드: REDDIT_CLIENT_ID / REDDIT_CLIENT_SECRET 필요
 DEMO 모드: USE_DEMO_DATA=true 시 실제 API 없이 샘플 데이터 반환
 """
 import os
+import re
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -268,7 +269,10 @@ class RedditCollector(BaseCollector):
         combined = f"{title} {content}".lower()
         keyword_lower = keyword.lower()
 
-        has_lg_signal = any(term in combined for term in _LG_TERMS)
+        has_lg_signal = any(
+            re.search(r"\blg\b", combined) if term == "lg" else term in combined
+            for term in _LG_TERMS
+        )
         if not has_lg_signal:
             return False
 

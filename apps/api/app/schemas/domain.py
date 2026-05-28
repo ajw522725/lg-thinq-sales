@@ -142,6 +142,24 @@ class SeedResponse(BaseModel):
     insights: int
 
 
+class CollectionRunRequest(BaseModel):
+    keywords: list[str] = Field(default_factory=lambda: ["LG air purifier"])
+    sources: list[str] = Field(default_factory=lambda: ["Reddit"])
+    max_per_source: int = 10
+    live: bool = True
+    reset: bool = False
+    save: bool = False
+
+
+class CollectionRunResponse(SeedResponse):
+    mode: Literal["demo", "live"]
+    keywords: list[str]
+    sources: list[str]
+    collector_raw: int
+    ingestion_payload: int
+    source_stats: dict[str, int]
+
+
 class IngestionVOC(BaseModel):
     source: str
     external_id: str

@@ -78,3 +78,25 @@ export interface DashboardSummary {
   high_priority_preview: VocRecord[];
   featured_insight: StrategyInsight | null;
 }
+
+export interface CollectionRunRequest {
+  keywords: string[];
+  sources: string[];
+  max_per_source: number;
+  live: boolean;
+  reset: boolean;
+  save: boolean;
+}
+
+export interface CollectionRunResponse {
+  seeded: boolean;
+  raw_documents: number;
+  processed_documents: number;
+  insights: number;
+  mode: "demo" | "live";
+  keywords: string[];
+  sources: string[];
+  collector_raw: number;
+  ingestion_payload: number;
+  source_stats: Record<string, number>;
+}

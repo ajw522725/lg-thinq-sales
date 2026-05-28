@@ -67,7 +67,7 @@ class BaseCollector(ABC):
         """
         if self.use_demo:
             self.logger.info(f"[DEMO] {self.source_name} | keyword={keyword!r}")
-            results = self.demo_data(keyword)
+            results = self.demo_data(keyword)[:max_items]
             self.logger.info(f"[DEMO] {len(results)}건 반환")
             return results
 

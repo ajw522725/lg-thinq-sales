@@ -1,3 +1,5 @@
+import { CollectionRunButton } from "./CollectionRunButton";
+
 export function TopNav() {
   const now = new Date().toLocaleDateString("ko-KR", {
     year: "numeric", month: "long", day: "numeric", weekday: "short",
@@ -20,6 +22,7 @@ export function TopNav() {
       {/* 우측 */}
       <div className="flex items-center gap-5">
         <span className="hidden text-xs text-secondary lg:block">{now}</span>
+        <CollectionRunButton />
 
         <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
