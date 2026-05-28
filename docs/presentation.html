@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LG ThinQ-Sales — 발표</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --primary: #7a0024;
+    --primary-strong: #a50034;
+    --primary-soft: rgba(122,0,36,0.08);
+    --primary-mid: rgba(122,0,36,0.15);
+    --bg: #f7f9ff;
+    --surface: #ffffff;
+    --surface-low: #f1f4f9;
+    --border: #e5e8ee;
+    --text: #181c20;
+    --secondary: #5a5e6a;
+    --emerald: #059669;
+    --amber: #d97706;
+    --error: #ba1a1a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Inter, system-ui, sans-serif;
+    background: #0a0a0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── 슬라이드 컨테이너 ── */
+  .deck {
+    width: 960px;
+    height: 540px;
+    position: relative;
+    user-select: none;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateX(40px);
+    pointer-events: none;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .slide.exit {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+
+  /* ── 공통 레이아웃 ── */
+  .slide-inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 48px 56px;
+    background: var(--surface);
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--primary);
+    background: var(--primary-soft);
+    border: 1px solid var(--primary-mid);
+    border-radius: 999px;
+    padding: 4px 12px;
+    width: fit-content;
+    margin-bottom: 20px;
+  }
+
+  .tag .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--primary);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity:1; transform: scale(1); }
+    50% { opacity:0.5; transform: scale(0.8); }
+  }
+
+  h1 { font-size: 42px; font-weight: 800; color: var(--text); line-height: 1.15; }
+  h2 { font-size: 28px; font-weight: 700; color: var(--text); line-height: 1.2; }
+  h3 { font-size: 16px; font-weight: 600; color: var(--text); }
+  p  { font-size: 14px; color: var(--secondary); line-height: 1.7; }
+
+  /* ── 하단 진행 바 ── */
+  .controls {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(12px);
+    border-radius: 999px;
+    padding: 10px 20px;
+    color: #fff;
+    font-size: 13px;
+    font-family: Inter, sans-serif;
+    z-index: 100;
+  }
+
+  .controls button {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+
+  .controls button:hover { background: rgba(255,255,255,0.15); }
+  .controls button:disabled { opacity: 0.3; cursor: default; }
+
+  .progress-dots {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .progress-dots span {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transition: background 0.2s, width 0.2s;
+    cursor: pointer;
+  }
+
+  .progress-dots span.active {
+    background: var(--primary-strong);
+    width: 20px;
+    border-radius: 3px;
+  }
+
+  /* ── 슬라이드별 스타일 ── */
+
+  /* SLIDE 1: Title */
+  .s-title { background: linear-gradient(135deg, #fff 0%, rgba(122,0,36,0.04) 100%); }
+  .s-title .logo-box {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .s-title .logo-icon {
+    width: 52px; height: 52px;
+    background: var(--primary);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 900;
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(122,0,36,0.3);
+  }
+  .s-title .logo-text h1 { font-size: 32px; color: var(--primary); }
+  .s-title .logo-text p { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--secondary); }
+  .s-title .main-headline { font-size: 44px; font-weight: 800; color: var(--text); line-height: 1.2; margin-bottom: 16px; }
+  .s-title .sub { font-size: 16px; color: var(--secondary); margin-bottom: 40px; line-height: 1.6; }
+  .s-title .team-row { display: flex; gap: 24px; }
+  .s-title .team-chip {
+    font-size: 12px; font-weight: 500;
+    color: var(--secondary);
+    background: var(--surface-low);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+  }
+  .s-title .team-chip strong { color: var(--text); font-weight: 700; display: block; font-size: 11px; margin-bottom: 2px; }
+  .s-title .date-badge {
+    position: absolute;
+    top: 40px; right: 56px;
+    font-size: 12px; font-weight: 600;
+    color: var(--secondary);
+  }
+
+  /* SLIDE 2: Problem */
+  .s-problem .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 8px; }
+  .pain-card {
+    background: var(--surface-low);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .pain-card .icon { font-size: 28px; margin-bottom: 10px; }
+  .pain-card h3 { font-size: 14px; margin-bottom: 6px; }
+  .pain-card p { font-size: 12px; line-height: 1.6; }
+  .pain-card.highlight {
+    border-color: var(--primary-mid);
+    background: linear-gradient(135deg, #fff, var(--primary-soft));
+  }
+
+  /* SLIDE 3: Solution */
+  .s-solution .solution-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 8px; }
+  .sol-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    background: #fff;
+  }
+  .sol-card .sol-num {
+    font-size: 32px; font-weight: 900;
+    color: var(--primary);
+    opacity: 0.15;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .sol-card h3 { font-size: 14px; margin-bottom: 6px; }
+  .sol-card p { font-size: 12px; line-height: 1.6; }
+  .sol-summary {
+    margin-bottom: 20px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-strong) 100%);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+
+  /* SLIDE 4: Architecture */
+  .s-arch .pipeline {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-top: 16px;
+    flex: 1;
+  }
+  .pipe-step {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 14px;
+    background: #fff;
+    position: relative;
+    text-align: center;
+  }
+  .pipe-step + .pipe-step { margin-left: 8px; }
+  .pipe-step::after {
+    content: '→';
+    position: absolute;
+    right: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--secondary);
+    font-size: 16px;
+    z-index: 2;
+  }
+  .pipe-step:last-child::after { display: none; }
+  .pipe-step .step-icon { font-size: 24px; margin-bottom: 8px; }
+  .pipe-step .step-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .pipe-step .step-items { font-size: 10px; color: var(--secondary); line-height: 1.8; }
+  .pipe-step.highlight-step {
+    border-color: var(--primary-mid);
+    background: linear-gradient(135deg, #fff, var(--primary-soft));
+  }
+  .pipe-step.highlight-step .step-title { color: var(--primary); }
+  .arch-note {
+    margin-top: 14px;
+    display: flex; gap: 8px;
+  }
+  .arch-chip {
+    font-size: 10px; font-weight: 600;
+    background: var(--surface-low);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    color: var(--secondary);
+  }
+
+  /* SLIDE 5: Tech Stack */
+  .s-tech .stack-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; }
+  .stack-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    background: #fff;
+  }
+  .stack-card .stack-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--primary); margin-bottom: 10px;
+  }
+  .stack-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .stack-tag {
+    font-size: 11px; font-weight: 600;
+    background: var(--surface-low);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    color: var(--text);
+  }
+
+  /* SLIDES 6-9: Demo screens */
+  .s-demo .demo-layout { display: grid; grid-template-columns: 1fr 1.6fr; gap: 24px; flex: 1; margin-top: 8px; }
+  .demo-points { display: flex; flex-direction: column; gap: 12px; justify-content: center; }
+  .demo-point {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: #fff;
+  }
+  .demo-point .check {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    font-size: 11px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .demo-point h3 { font-size: 13px; margin-bottom: 3px; }
+  .demo-point p { font-size: 11px; }
+  .demo-screen {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg);
+    display: flex; flex-direction: column;
+  }
+  .screen-bar {
+    height: 32px;
+    background: var(--surface-low);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 12px; gap: 6px;
+  }
+  .screen-bar span { width: 8px; height: 8px; border-radius: 50%; }
+  .screen-bar .url {
+    width: auto; height: auto; border-radius: 0;
+    flex: 1; text-align: center;
+    font-size: 10px; color: var(--secondary); font-weight: 500;
+    font-family: monospace;
+  }
+  .screen-content { flex: 1; padding: 14px; overflow: hidden; }
+
+  /* mini mock dashboard */
+  .mock-kpi { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-bottom: 10px; }
+  .mock-kpi-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+  .mock-kpi-card .kv { font-size: 18px; font-weight: 800; color: var(--primary); }
+  .mock-kpi-card .kl { font-size: 9px; color: var(--secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+  .mock-chart { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px; height: 80px; display: flex; align-items: flex-end; gap: 6px; }
+  .mock-bar { flex: 1; border-radius: 4px 4px 0 0; }
+
+  /* mini mock voc */
+  .mock-filters { display: flex; gap: 6px; margin-bottom: 8px; }
+  .mock-filter { font-size: 10px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: #fff; color: var(--secondary); font-weight: 600; }
+  .mock-filter.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .mock-voc-row { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
+  .mock-voc-row .voc-title { font-size: 11px; font-weight: 600; color: var(--text); }
+  .mock-voc-row .voc-meta { font-size: 10px; color: var(--secondary); }
+  .badge { font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 999px; }
+  .badge-pos { background: #d1fae5; color: #065f46; }
+  .badge-neg { background: #fee2e2; color: #991b1b; }
+  .badge-neu { background: #f3f4f6; color: #4b5563; }
+  .badge-high { background: #fee2e2; color: #991b1b; }
+  .badge-mid { background: #fef3c7; color: #92400e; }
+  .badge-low { background: #f0fdf4; color: #166534; }
+  .badge-primary { background: var(--primary-soft); color: var(--primary); border: 1px solid var(--primary-mid); }
+
+  /* mini mock lead */
+  .mock-lead-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; height: 100%; }
+  .mock-lead-table { background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .mock-lead-row { padding: 7px 10px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 10px; }
+  .mock-lead-row.selected { background: rgba(122,0,36,0.06); }
+  .mock-lead-row .score { font-size: 13px; font-weight: 800; color: var(--primary); }
+  .mock-detail { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px; }
+  .mock-score-bar { margin-bottom: 7px; }
+  .mock-score-bar .label { font-size: 9px; color: var(--secondary); font-weight: 600; display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .mock-score-bar .bar-bg { height: 5px; background: var(--surface-low); border-radius: 3px; overflow: hidden; }
+  .mock-score-bar .bar-fill { height: 100%; background: var(--primary); border-radius: 3px; }
+
+  /* mini mock insights */
+  .mock-insight-featured {
+    background: linear-gradient(135deg, #fff, var(--primary-soft));
+    border: 1px solid var(--primary-mid);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+  }
+  .mock-insight-featured .ins-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .mock-insight-featured .ins-summary { font-size: 10px; color: var(--secondary); line-height: 1.6; }
+  .mock-insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .mock-insight-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+  .mock-insight-card .ic-title { font-size: 10px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .mock-insight-card .ic-action { font-size: 9px; color: var(--secondary); line-height: 1.5; }
+
+  /* SLIDE 10: Team */
+  .s-team .team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; }
+  .team-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    background: #fff;
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .team-card.me {
+    border-color: var(--primary-mid);
+    background: linear-gradient(135deg, #fff, var(--primary-soft));
+  }
+  .team-avatar {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .team-card.me .team-avatar { box-shadow: 0 4px 12px rgba(122,0,36,0.3); }
+  .team-info h3 { font-size: 14px; margin-bottom: 2px; }
+  .team-info .role { font-size: 11px; color: var(--primary); font-weight: 700; margin-bottom: 6px; }
+  .team-info p { font-size: 11px; line-height: 1.6; }
+
+  /* SLIDE 11: Results & Roadmap */
+  .s-result .result-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; margin-top: 8px; }
+  .result-col h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--secondary); margin-bottom: 10px; }
+  .result-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #fff;
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+  .result-item .ri-icon { font-size: 16px; flex-shrink: 0; }
+  .result-item h4 { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .result-item p { font-size: 11px; color: var(--secondary); }
+  .roadmap-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--surface-low);
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+  .roadmap-item .phase {
+    font-size: 9px; font-weight: 800;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 4px;
+    padding: 2px 7px;
+    flex-shrink: 0;
+  }
+
+  /* SLIDE 12: Q&A */
+  .s-qa { background: linear-gradient(160deg, #7a0024 0%, #a50034 100%); }
+  .s-qa .slide-inner { background: transparent; justify-content: center; align-items: center; text-align: center; }
+  .s-qa h1 { font-size: 64px; color: #fff; opacity: 0.15; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-60%); font-weight: 900; }
+  .s-qa .qa-content { position: relative; z-index: 1; }
+  .s-qa .qa-main { font-size: 52px; font-weight: 900; color: #fff; line-height: 1.1; margin-bottom: 16px; }
+  .s-qa .qa-sub { font-size: 16px; color: rgba(255,255,255,0.7); margin-bottom: 32px; }
+  .s-qa .qa-links { display: flex; gap: 12px; justify-content: center; }
+  .s-qa .qa-link {
+    font-size: 12px; font-weight: 600;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    border-radius: 8px;
+    padding: 10px 18px;
+  }
+
+  .slide-number {
+    position: absolute;
+    bottom: 18px; right: 20px;
+    font-size: 11px; font-weight: 600; color: var(--border);
+  }
+  .s-qa .slide-number { color: rgba(255,255,255,0.3); }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- ─── SLIDE 1: Title ─── -->
+  <div class="slide active" data-slide="1">
+    <div class="slide-inner s-title">
+      <div class="logo-box">
+        <div class="logo-icon">LG</div>
+        <div class="logo-text">
+          <h1>ThinQ-Sales</h1>
+          <p>Strategic Intelligence Platform</p>
+        </div>
+      </div>
+      <div class="tag"><span class="dot"></span>AI-Powered Demo · Phase 0+1 MVP</div>
+      <div class="main-headline">VOC·SNS·외부데이터 통합<br/>AI 영업 전략 운영 플랫폼</div>
+      <div class="sub">고객 니즈, 구매 가능성, 불만, 외부 환경 맥락을 실시간으로 파악하고<br/>LLM 기반 영업 전략 인사이트를 자동 생성합니다.</div>
+      <div class="team-row">
+        <div class="team-chip"><strong>ajw522725</strong>PM · Backend</div>
+        <div class="team-chip"><strong>wldnjsrla085</strong>Data Collection</div>
+        <div class="team-chip"><strong>yuna0822</strong>AI / NLP</div>
+        <div class="team-chip"><strong>sksmsdngml-ui</strong>Frontend · Demo UX</div>
+      </div>
+      <div class="date-badge">2026. 05. 28</div>
+    </div>
+    <div class="slide-number">1 / 12</div>
+  </div>
+
+  <!-- ─── SLIDE 2: Problem ─── -->
+  <div class="slide" data-slide="2">
+    <div class="slide-inner">
+      <div class="tag">Problem</div>
+      <h2 style="margin-bottom:8px">현재 영업팀이 겪는 Pain Point</h2>
+      <p style="margin-bottom:20px">데이터는 넘치지만, 영업에 바로 쓸 수 있는 형태로 오지 않는다.</p>
+      <div class="grid s-problem">
+        <div class="pain-card highlight">
+          <div class="icon">🌊</div>
+          <h3>VOC 데이터 파편화</h3>
+          <p>Danawa, 네이버 블로그, Reddit, YouTube, X/Twitter — 플랫폼마다 따로 수집, 통합 분석 불가</p>
+        </div>
+        <div class="pain-card highlight">
+          <div class="icon">⏳</div>
+          <h3>리드 발굴 지연</h3>
+          <p>긍정 VOC가 올라와도 며칠 후에야 영업 담당자가 인지. 골든타임 내 접촉 불가</p>
+        </div>
+        <div class="pain-card highlight">
+          <div class="icon">🌡️</div>
+          <h3>외부 맥락 미반영</h3>
+          <p>미세먼지 급증일에 공기청정기 문의가 증가해도 영업팀은 실시간 연계 없음</p>
+        </div>
+        <div class="pain-card">
+          <div class="icon">🔢</div>
+          <h3>우선순위 판단 주관적</h3>
+          <p>어떤 리드를 먼저 접촉해야 할지 데이터 기반 근거 없이 경험에만 의존</p>
+        </div>
+        <div class="pain-card">
+          <div class="icon">📋</div>
+          <h3>전략 보고 수작업</h3>
+          <p>주간 VOC 리포트 작성에 수 시간 소요. 인사이트보다 취합에 시간을 허비</p>
+        </div>
+        <div class="pain-card">
+          <div class="icon">🏆</div>
+          <h3>경쟁사 비교 모니터링 없음</h3>
+          <p>삼성·다이슨 등 경쟁사 언급이 VOC에 섞여도 별도 추적 체계 부재</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">2 / 12</div>
+  </div>
+
+  <!-- ─── SLIDE 3: Solution ─── -->
+  <div class="slide" data-slide="3">
+    <div class="slide-inner">
+      <div class="tag">Solution</div>
+      <h2 style="margin-bottom:10px">ThinQ-Sales 핵심 3가지</h2>
+      <div class="sol-summary">
+        수집부터 인사이트까지 <strong>하나의 파이프라인</strong>으로 — VOC 20건을 넣으면 리드 스코어와 전략 추천이 자동으로 나옵니다.
+      </div>
+      <div class="solution-grid s-solution">
+        <div class="sol-card">
+          <div class="sol-num">01</div>
+          <h3>멀티 플랫폼 VOC 통합 수집</h3>
+          <p>Danawa · Reddit · 네이버 블로그 · YouTube · X/Twitter를 단일 파이프라인으로 수집. 텍스트 정규화·중복 제거 자동화.</p>
+        </div>
+        <div class="sol-card" style="border-color:var(--primary-mid);background:linear-gradient(135deg,#fff,var(--primary-soft))">
+          <div class="sol-num">02</div>
+          <h3>AI 기반 리드 스코어링</h3>
+          <p>감성·구매의도·긴급도·경쟁사 언급·외부 맥락을 종합한 0–100 리드 점수. 영업 우선순위를 데이터로 결정.</p>
+        </div>
+        <div class="sol-card">
+          <div class="sol-num">03</div>
+          <h3>LLM 전략 인사이트 자동 생성</h3>
+          <p>VOC·리드 점수·외부 컨텍스트를 조합해 "지금 이 고객에게 무엇을 제안해야 하는가"를 자동 생성.</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">3 / 12</div>
+  </div>
+
+  <!-- ─── SLIDE 4: Architecture ─── -->
+  <div class="slide" data-slide="4">
+    <div class="slide-inner">
+      <div class="tag">Architecture</div>
+      <h2 style="margin-bottom:8px">데이터 파이프라인 흐름</h2>
+      <p style="margin-bottom:16px">VOC 원문에서 화면 렌더링까지 end-to-end 자동화</p>
+      <div class="pipeline s-arch">
+        <div class="pipe-step">
+          <div class="step-icon">🕷️</div>
+          <div class="step-title">수집</div>
+          <div class="step-items">Danawa<br/>Reddit<br/>NaverBlog<br/>YouTube</div>
+        </div>
+        <div class="pipe-step">
+          <div class="step-icon">🧹</div>
+          <div class="step-title">전처리</div>
+          <div class="step-items">HTML 제거<br/>중복 탐지<br/>정규화<br/>품질 필터</div>
+        </div>
+        <div class="pipe-step highlight-step">
+          <div class="step-icon">🧠</div>
+          <div class="step-title">NLP 분석</div>
+          <div class="step-items">감성 분류<br/>구매의도<br/>긴급도<br/>토픽</div>
+        </div>
+        <div class="pipe-step highlight-step">
+          <div class="step-icon">📊</div>
+          <div class="step-title">리드 스코어</div>
+          <div class="step-items">0–100 점수<br/>우선순위<br/>점수 근거<br/>분해</div>
+        </div>
+        <div class="pipe-step">
+          <div class="step-icon">🌦️</div>
+          <div class="step-title">외부 맥락</div>
+          <div class="step-items">기상 / 대기<br/>에너지<br/>주거 트렌드<br/>매칭</div>
+        </div>
+        <div class="pipe-step highlight-step">
+          <div class="step-icon">💡</div>
+          <div class="step-title">인사이트</div>
+          <div class="step-items">전략 제목<br/>권장 액션<br/>추론 근거<br/>신뢰도</div>
+        </div>
+        <div class="pipe-step">
+          <div class="step-icon">🖥️</div>
+          <div class="step-title">Dashboard</div>
+          <div class="step-items">Next.js<br/>실시간 필터<br/>차트<br/>리드 패널</div>
+        </div>
+      </div>
+      <div class="arch-note">
+        <span class="arch-chip">FastAPI · SQLAlchemy · SQLite/PostgreSQL</span>
+        <span class="arch-chip">Next.js 14 · TypeScript · Tailwind</span>
+        <span class="arch-chip">Rule-based NLP + demo LLM</span>
+        <span class="arch-chip">3초 타임아웃 → Demo Fallback</span>
+      </div>
+    </div>
+    <div class="slide-number">4 / 12</div>
+  </div>
+
+  <!-- ─── SLIDE 5: Tech Stack ─── -->
+  <div class="slide" data-slide="5">
+    <div class="slide-inner">
+      <div class="tag">Tech Stack</div>
+      <h2 style="margin-bottom:16px">기술 스택</h2>
+      <div class="stack-grid s-tech">
+        <div class="stack-card">
+          <div class="stack-label">🖥️ Frontend</div>
+          <div class="stack-tags">
+            <span class="stack-tag">Next.js 14</span>
+            <span class="stack-tag">React 18</span>
+            <span class="stack-tag">TypeScript</span>
+            <span class="stack-tag">Tailwind CSS</span>
+            <span class="stack-tag">Recharts</span>
+            <span class="stack-tag">Server Components</span>
+            <span class="stack-tag">Demo Fallback</span>
+          </div>
+        </div>
+        <div class="stack-card">
+          <div class="stack-label">⚙️ Backend</div>
+          <div class="stack-tags">
+            <span class="stack-tag">Python 3.12+</span>
+            <span class="stack-tag">FastAPI</span>
+            <span class="stack-tag">SQLAlchemy</span>
+            <span class="stack-tag">Pydantic v2</span>
+            <span class="stack-tag">Alembic</span>
+            <span class="stack-tag">PostgreSQL / SQLite</span>
+            <span class="stack-tag">Docker Compose</span>
+          </div>
+        </div>
+        <div class="stack-card">
+          <div class="stack-label">🧠 AI / NLP</div>
+          <div class="stack-tags">
+            <span class="stack-tag">Rule-based NLP</span>
+            <span class="stack-tag">kiwipiepy</span>
+            <span class="stack-tag">langdetect</span>
+            <span class="stack-tag">XGBoost (Scoring)</span>
+            <span class="stack-tag">OpenAI API (준비)</span>
+            <span class="stack-tag">Gemini API (준비)</span>
+            <span class="stack-tag">Demo LLM Fallback</span>
+          </div>
+        </div>
+        <div class="stack-card">
+          <div class="stack-label">📡 Data Collection</div>
+          <div class="stack-tags">
+            <span class="stack-tag">Danawa Collector</span>
+            <span class="stack-tag">Reddit (PRAW)</span>
+            <span class="stack-tag">NaverBlog API</span>
+            <span class="stack-tag">YouTube Data API</span>
+            <span class="stack-tag">Demo Seed 20건</span>
+            <span class="stack-tag">Ingestion Pipeline</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">5 / 12</div>
+  </div>
+
+  <!-- ─── SLIDE 6: Demo - Dashboard ─── -->
+  <div class="slide" data-slide="6">
+    <div class="slide-inner">
+      <div class="tag">Demo · 화면 1</div>
+      <h2 style="margin-bottom:12px">Dashboard — 영업 현황 한눈에</h2>
+      <div class="demo-layout s-demo">
+        <div class="demo-points">
+          <div class="demo-point">
+            <div class="check">1</div>
+            <div><h3>KPI 메트릭 4종</h3><p>총 VOC 수 · High Priority 리드 · 부정 VOC 비율 · 구매의도 감지 건수</p></div>
+          </div>
+          <div class="demo-point">
+            <div class="check">2</div>
+            <div><h3>플랫폼별 VOC 분포</h3><p>Danawa·Reddit·NaverBlog·YouTube·X 바 차트</p></div>
+          </div>
+          <div class="demo-point">
+            <div class="check">3</div>
+            <div><h3>토픽 클러스터</h3><p>Air Quality / Energy / Subscription 등 자동 분류</p></div>
+          </div>
+          <div class="demo-point">
+            <div class="check">4</div>
+            <div><h3>AI Featured Insight</h3><p>가장 신뢰도 높은 전략 인사이트 실시간 표시</p></div>
+          </div>
+        </div>
+        <div class="demo-screen">
+          <div class="screen-bar">
+            <span style="background:#ff5f57"></span>
+            <span style="background:#febc2e"></span>
+            <span style="background:#28c840"></span>
+            <span class="url">localhost:3000</span>
+          </div>
+          <div class="screen-content">
+            <div class="mock-kpi">
+              <div class="mock-kpi-card"><div class="kl">VOC Collected</div><div class="kv">20</div></div>
+              <div class="mock-kpi-card"><div class="kl">High Priority</div><div class="kv" style="color:var(--error)">2</div></div>
+              <div class="mock-kpi-card"><div class="kl">Negative Rate</div><div class="kv" style="color:var(--error)">25%</div></div>
+              <div class="mock-kpi-card"><div class="kl">Purchase Intent</div><div class="kv">11</div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div>
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--secondary);margin-bottom:6px;">Platform Distribution</div>
+                <div class="mock-chart">
+                  <div class="mock-bar" style="height:70%;background:#7a0024;opacity:0.85"></div>
+                  <div class="mock-bar" style="height:85%;background:#ff4500;opacity:0.85"></div>
+                  <div class="mock-bar" style="height:60%;background:#03c75a;opacity:0.85"></div>
+                  <div class="mock-bar" style="height:75%;background:#ff0000;opacity:0.7"></div>
+                  <div class="mock-bar" style="height:55%;background:#222;opacity:0.7"></div>
+                </div>
+                <div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;">
+                  <span style="font-size:8px;color:var(--secondary)">■ Danawa</span>
+                  <span style="font-size:8px;color:var(--secondary)">■ Reddit</span>
+                  <span style="font-size:8px;color:var(--secondary)">■ Naver</span>
+                  <span style="font-size:8px;color:var(--secondary)">■ YouTube</span>
+                  <span style="font-size:8px;color:var(--secondary)">■ X</span>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--secondary);margin-bottom:6px;">Topic Clusters</div>
+                <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px;">
+                  <div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:4px;"><span>Air Quality Demand</span><span class="badge badge-high">4건</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:4px;"><span>Energy Efficiency</span><span class="badge badge-mid">3건</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:4px;"><span>Subscription Pricing</span><span class="badge badge-mid">3건</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:9px;"><span>ThinQ Connectivity</span><span class="badge badge-low">2건</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">6 / 12</div>
+  </div>
+
+  <!-- ─── SLIDE 7: Demo - VOC Analysis ─── -->
+  <div class="slide" data-slide="7">
+    <div class="slide-inner">
+      <div class="tag">Demo · 화면 2</div>
+      <h2 style="margin-bottom:12px">VOC Analysis — 실시간 필터링</h2>
+      <div class="demo-layout s-demo">
+        <div class="demo-points">
+          <div class="demo-point">
+            <div class="check">1</div>
+            <div><h3>4중 필터</h3><p>감성(긍/중/부) · 구매의도(High/Medium/Low) · 플랫폼 · 키워드 동시 적용</p></div>
+          </div>
+          <div class="demo-point">
+            <div class="check">2</div>
+            <div><h3>긴급도 분포</h3><p>Critical · Medium · Low 긴급도를 색상 바로 시각화</p></div>
+          </div>
+          <div class="demo-point">
+            <div class="check">3</div>
+            <div><h3>토픽 클러스터 뱃지</h3><p>VOC별 자동 분류 토픽 + 상태 배지 표시</p></div>
+          </div>
+          <div class="demo-point">
+            <div class="check">4</div>
+            <div><h3>필터 초기화</h3><p>전체 조건을 한 번에 리셋하는 Reset 버튼</p></div>
+          </div>
+        </div>
+        <div class="demo-screen">
+          <div class="screen-bar">
+            <span style="background:#ff5f57"></span>
+            <span style="background:#febc2e"></span>
+            <span style="background:#28c840"></span>
+            <span class="url">localhost:3000/voc</span>
+          </div>
+          <div class="screen-content">
+            <div class="mock-filters">
+              <span class="mock-filter active">All</span>
+              <span class="mock-filter active">Positive</span>
+              <span class="mock-filter">Negative</span>
+              <span class="mock-filter">High Intent</span>
+              <span class="mock-filter">Danawa</span>
+            </div>
+            <div class="mock-voc-row">
+              <div><div class="voc-title">Fine dust is terrible. Buying LG air purifier.</div><div class="voc-meta">X/Twitter · Seoul · 2026-05-20</div></div>
+              <div style="display:flex;gap:4px;flex-shrink:0;"><span class="badge badge-pos">positive</span><span class="badge badge-high">High</span></div>
+            </div>
+            <div class="mock-voc-row">
+              <div><div class="voc-title">LG 세탁기 설치 지연 너무 답답해요</div><div class="voc-meta">Danawa · Busan · 2026-05-18</div></div>
+              <div style="display:flex;gap:4px;flex-shrink:0;"><span class="badge badge-neg">negative</span><span class="badge badge-mid">Medium</span></div>
+            </div>
+            <div class="mock-voc-row">
+              <div><div class="voc-title">Considering switching from Samsung to LG</div><div class="voc-meta">Reddit · Seoul · 2026-05-15</div></div>
+              <div style="display:flex;gap:4px;flex-shrink:0;"><span class="badge badge-neu">neutral</span><span class="badge badge-high">High</span></div>
+            </div>
+            <div class="mock-voc-row">
+              <div><div class="voc-title">ThinQ 앱이 자꾸 연결 끊겨요</div><div class="voc-meta">NaverBlog · Incheon · 2026-05-12</div></div>
+              <div style="display:flex;gap:4px;flex-shrink:0;"><span class="badge badge-neg">negative</span><span class="badge badge-low">Low</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">7 / 12</div>
+  </div>
+
+  <!-- ─── SLIDE 8: Demo - Lead Scoring ─── -->
+  <div class="slide" data-slide="8">
+    <div class="slide-inner">
+      <div class="tag">Demo · 화면 3</div>
+      <h2 style="margin-bottom:12px">Lead Scoring — 인터랙티브 상세 패널</h2>
+      <div class="demo-layout s-demo">
+        <div class="demo-points">
+          <div class="demo-point">
+            <div class="check">1</div>
+            <div><h3>0–100 리드 점수</h3><p>구매의도·긴급도·경쟁사·감성·플랫폼·인게이지먼트·맥락 7요소 합산</p></div>
+          </div>
+          <div class="demo-point">
+            <div class="check">2</div>
+            <div><h3>점수 분해 바 차트</h3><p>각 요소별 기여도를 바로 시각화. 어떤 이유로 High인지 확인 가능</p></div>
+          </div>
+          <div class="demo-point">
+            <div class="check">3</div>
+            <div><h3>클릭으로 상세 전환</h3><p>테이블 행 클릭 → 오른쪽 패널에 AI 추천 액션과 근거 즉시 표시</p></div>
+          </div>
+          <div class="demo-point">
+            <div class="check">4</div>
+            <div><h3>High / Medium / Low 배지</h3><p>점수 기준 자동 분류. 영업 우선순위 결정에 즉시 활용</p></div>
+          </div>
+        </div>
+        <div class="demo-screen">
+          <div class="screen-bar">
+            <span style="background:#ff5f57"></span>
+            <span style="background:#febc2e"></span>
+            <span style="background:#28c840"></span>
+            <span class="url">localhost:3000/lead-scoring</span>
+          </div>
+          <div class="screen-content">
+            <div class="mock-lead-layout">
+              <div class="mock-lead-table">
+                <div class="mock-lead-row" style="background:var(--surface-low);font-size:9px;font-weight:700;color:var(--secondary);">
+                  <span>VOC 출처</span><span>점수</span>
+                </div>
+                <div class="mock-lead-row selected">
+                  <div><div style="font-weight:700;font-size:10px;">X/Twitter · Air Purifier</div><div class="badge badge-high" style="margin-top:3px;">High Priority</div></div>
+                  <div class="score">91</div>
+                </div>
+                <div class="mock-lead-row">
+                  <div><div style="font-weight:700;font-size:10px;">Naver Blog · Air Con</div><div class="badge badge-high" style="margin-top:3px;">High Priority</div></div>
+                  <div class="score">88</div>
+                </div>
+                <div class="mock-lead-row">
+                  <div><div style="font-weight:700;font-size:10px;">Reddit · Refrigerator</div><div class="badge badge-mid" style="margin-top:3px;">Medium</div></div>
+                  <div class="score">74</div>
+                </div>
+                <div class="mock-lead-row">
+                  <div><div style="font-weight:700;font-size:10px;">YouTube · Washer</div><div class="badge badge-mid" style="margin-top:3px;">Medium</div></div>
+                  <div class="score">66</div>
+                </div>
+              </div>
+              <div class="mock-detail">
+                <div style="font-size:9px;font-weight:700;color:var(--secondary);text-transform:uppercase;margin-bottom:8px;">점수 분해 — 91점</div>
+                <div class="mock-score-bar"><div class="label"><span>Purchase Intent</span><span>40.5</span></div><div class="bar-bg"><div class="bar-fill" style="width:88%"></div></div></div>
+                <div class="mock-score-bar"><div class="label"><span>Urgency</span><span>18.2</span></div><div class="bar-bg"><div class="bar-fill" style="width:70%"></div></div></div>
+                <div class="mock-score-bar"><div class="label"><span>Context</span><span>14.0</span></div><div class="bar-bg"><div class="bar-fill" style="width:54%"></div></div></div>
+                <div class="mock-score-bar"><div class="label"><span>Platform</span><span>8.0</span></div><div class="bar-bg"><div class="bar-fill" style="width:31%"></div></div></div>
+                <div style="background:var(--primary-soft);border:1px solid var(--primary-mid);border-radius:6px;padding:7px;margin-top:8px;">
+                  <div style="font-size:9px;font-weight:800;color:var(--primary);margin-bottom:3px;">AI Recommended Action</div>
+                  <div style="font-size:9px;color:var(--text);line-height:1.5;">Recommend filter subscription and seasonal air quality campaign.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">8 / 12</div>
+  </div>
+
+  <!-- ─── SLIDE 9: Demo - Strategy Insights ─── -->
+  <div class="slide" data-slide="9">
+    <div class="slide-inner">
+      <div class="tag">Demo · 화면 4</div>
+      <h2 style="margin-bottom:12px">Strategy Insights — AI 전략 인사이트</h2>
+      <div class="demo-layout s-demo">
+        <div class="demo-points">
+          <div class="demo-point">
+            <div class="check">1</div>
+            <div><h3>Featured Insight</h3><p>신뢰도 최상위 인사이트를 풀 카드로 표시. 추론 근거와 권장 액션 포함</p></div>
+          </div>
+          <div class="demo-point">
+            <div class="check">2</div>
+            <div><h3>외부 컨텍스트 시그널</h3><p>기상·대기질·에너지·주거 데이터를 매칭해 "왜 지금인가" 근거 제시</p></div>
+          </div>
+          <div class="demo-point">
+            <div class="check">3</div>
+            <div><h3>Confidence 바</h3><p>각 인사이트에 0–100% 신뢰도 표시. 판단 근거 투명화</p></div>
+          </div>
+          <div class="demo-point">
+            <div class="check">4</div>
+            <div><h3>우선순위 그리드</h3><p>High · Medium · Low 인사이트를 우선순위별로 자동 정렬·그리드 표시</p></div>
+          </div>
+        </div>
+        <div class="demo-screen">
+          <div class="screen-bar">
+            <span style="background:#ff5f57"></span>
+            <span style="background:#febc2e"></span>
+            <span style="background:#28c840"></span>
+            <span class="url">localhost:3000/strategy-insights</span>
+          </div>
+          <div class="screen-content">
+            <div class="mock-insight-featured">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+                <div style="display:flex;gap:4px;"><span class="badge badge-high">High</span><span class="badge badge-primary">AI Generated</span></div>
+                <div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:var(--primary);">92%</div><div style="font-size:8px;color:var(--secondary);">Confidence</div></div>
+              </div>
+              <div class="ins-title">Air quality context creates air purifier demand</div>
+              <div class="ins-summary">Seoul 지역 미세먼지 급증과 연계된 구매 의도 증가 감지. 필터 구독 + 계절 캠페인 즉시 실행 권장.</div>
+            </div>
+            <div class="mock-insight-grid">
+              <div class="mock-insight-card">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span class="badge badge-high">High</span><span style="font-size:10px;font-weight:800;color:var(--primary);">88%</span></div>
+                <div class="ic-title">Price-sensitive subscription customer detected</div>
+                <div class="ic-action">Offer bundle discount and compare TCO.</div>
+              </div>
+              <div class="mock-insight-card">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span class="badge badge-mid">Medium</span><span style="font-size:10px;font-weight:800;color:var(--primary);">75%</span></div>
+                <div class="ic-title">Energy-saving value resonating</div>
+                <div class="ic-action">Highlight savings + summer bundle promotion.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">9 / 12</div>
+  </div>
+
+  <!-- ─── SLIDE 10: Team ─── -->
+  <div class="slide" data-slide="10">
+    <div class="slide-inner">
+      <div class="tag">Team</div>
+      <h2 style="margin-bottom:16px">팀 구성 및 역할분담</h2>
+      <div class="team-grid s-team">
+        <div class="team-card">
+          <div class="team-avatar">JW</div>
+          <div class="team-info">
+            <h3>ajw522725</h3>
+            <div class="role">PM · Backend Integration Lead</div>
+            <p>전체 아키텍처 설계, FastAPI + SQLAlchemy DB 구조, Alembic migration, Docker Compose, 통합 검증 및 API 계약 관리</p>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">WD</div>
+          <div class="team-info">
+            <h3>wldnjsrla085</h3>
+            <div class="role">Data Collection · Dataset Lead</div>
+            <p>Danawa · Reddit · NaverBlog · YouTube collector 구현, 텍스트 전처리 파이프라인, demo dataset 20건 구성</p>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">YN</div>
+          <div class="team-info">
+            <h3>yuna0822</h3>
+            <div class="role">AI / NLP · Insight Lead</div>
+            <p>감성·의도·긴급도·토픽 NLP 파이프라인, Rule-based + XGBoost 리드 스코어, LLM 인사이트 gateway (demo/openai/gemini)</p>
+          </div>
+        </div>
+        <div class="team-card me">
+          <div class="team-avatar">SK</div>
+          <div class="team-info">
+            <h3>sksmsdngml-ui ✦ 나</h3>
+            <div class="role">Frontend · Demo UX Lead</div>
+            <p>Next.js 14 대시보드 4개 화면, Recharts 플랫폼 차트, 리드 상세 패널, VOC 실시간 필터, Skeleton UI, Demo Fallback</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">10 / 12</div>
+  </div>
+
+  <!-- ─── SLIDE 11: Results & Roadmap ─── -->
+  <div class="slide" data-slide="11">
+    <div class="slide-inner">
+      <div class="tag">Results & Roadmap</div>
+      <h2 style="margin-bottom:12px">현재 성과 &amp; 향후 계획</h2>
+      <div class="result-layout s-result">
+        <div class="result-col">
+          <h3>✅ Phase 0+1 달성</h3>
+          <div class="result-item"><div class="ri-icon">🔗</div><div><h4>End-to-end 파이프라인</h4><p>수집 → NLP → 리드스코어 → 인사이트 → Dashboard 완전 연결</p></div></div>
+          <div class="result-item"><div class="ri-icon">📊</div><div><h4>4개 화면 구현</h4><p>Dashboard · VOC Analysis · Lead Scoring · Strategy Insights</p></div></div>
+          <div class="result-item"><div class="ri-icon">🛡️</div><div><h4>백엔드 없이도 동작</h4><p>3초 타임아웃 → demo fallback 자동 전환. 발표 리스크 제거</p></div></div>
+          <div class="result-item"><div class="ri-icon">✔️</div><div><h4>통합 검증 완료</h4><p>10개 API endpoint 200 OK · typecheck · lint · build 통과</p></div></div>
+        </div>
+        <div class="result-col">
+          <h3>🗺️ 향후 로드맵</h3>
+          <div class="roadmap-item"><span class="phase">Phase 2</span><div><strong style="font-size:12px;">실시간 수집 + 운영 LLM</strong><div style="font-size:11px;color:var(--secondary);margin-top:2px;">Live collector · OpenAI/Gemini API 연결</div></div></div>
+          <div class="roadmap-item"><span class="phase">Phase 2</span><div><strong style="font-size:12px;">X/Twitter Collector</strong><div style="font-size:11px;color:var(--secondary);margin-top:2px;">미구현 플랫폼 추가 수집</div></div></div>
+          <div class="roadmap-item"><span class="phase">Phase 3</span><div><strong style="font-size:12px;">기상청 · AirKorea API 연동</strong><div style="font-size:11px;color:var(--secondary);margin-top:2px;">실시간 외부 맥락 자동 매칭</div></div></div>
+          <div class="roadmap-item"><span class="phase">Phase 3</span><div><strong style="font-size:12px;">CRM / ERP 연동</strong><div style="font-size:11px;color:var(--secondary);margin-top:2px;">자동 이메일·문자 발송 트리거</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">11 / 12</div>
+  </div>
+
+  <!-- ─── SLIDE 12: Q&A ─── -->
+  <div class="slide" data-slide="12">
+    <div class="s-qa">
+      <div class="slide-inner">
+        <h1>Q&amp;A</h1>
+        <div class="qa-content">
+          <div class="qa-main">감사합니다</div>
+          <div class="qa-sub">LG ThinQ-Sales — AI 기반 영업 전략 운영 플랫폼</div>
+          <div class="qa-links">
+            <span class="qa-link">🖥️ localhost:3000 — 라이브 데모</span>
+            <span class="qa-link">⚙️ localhost:8000/docs — API Docs</span>
+            <span class="qa-link">📦 github.com/ajw522725/lg-thinq-sales</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number" style="color:rgba(255,255,255,0.3)">12 / 12</div>
+  </div>
+
+</div>
+
+<!-- Controls -->
+<div class="controls">
+  <button id="prev" onclick="go(-1)">‹</button>
+  <div class="progress-dots" id="dots"></div>
+  <button id="next" onclick="go(1)">›</button>
+  <span id="counter" style="min-width:48px;text-align:center;opacity:0.6">1 / 12</span>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  const dotsEl = document.getElementById('dots');
+  const counterEl = document.getElementById('counter');
+  const prevBtn = document.getElementById('prev');
+  const nextBtn = document.getElementById('next');
+
+  // Build dots
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('span');
+    d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  }
+
+  function goTo(n) {
+    const from = current;
+    slides[from].classList.remove('active');
+    slides[from].classList.add('exit');
+    setTimeout(() => slides[from].classList.remove('exit'), 350);
+
+    current = Math.max(0, Math.min(total - 1, n));
+    slides[current].classList.add('active');
+    updateUI();
+  }
+
+  function go(dir) { goTo(current + dir); }
+
+  function updateUI() {
+    dotsEl.querySelectorAll('span').forEach((d, i) => d.classList.toggle('active', i === current));
+    counterEl.textContent = `${current + 1} / ${total}`;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); go(1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); go(-1); }
+  });
+
+  updateUI();
+</script>
+</body>
+</html>
