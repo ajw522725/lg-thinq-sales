@@ -13,6 +13,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.routes import router
+from app.api.v1.scheduler_routes import scheduler_router
 from app.core.config import settings
 from app.db import models
 from app.db.base import Base
@@ -28,6 +29,8 @@ app = FastAPI(
         "- `POST /api/v1/pipeline/run` — VOC 단일 분석(NLP+Score+Insight)\n"
         "- `GET /api/v1/demo/run` — yuna demo pipeline 실행\n"
         "- `POST /api/v1/nlp/analyze` — NLP 단독 분석\n"
+        "- `GET /api/v1/scheduler/status` — 스케줄러 상태 조회\n"
+        "- `POST /api/v1/scheduler/trigger/{job_id}` — 잡 수동 실행\n"
     ),
     docs_url="/docs",
     redoc_url="/redoc",
@@ -46,6 +49,15 @@ app.add_middleware(
 def on_startup() -> None:
     if settings.auto_create_tables:
         Base.metadata.create_all(bind=engine)
+    from services.scheduler import start_scheduler
+    start_scheduler()
+
+
+@app.on_event("shutdown")
+def on_shutdown() -> None:
+    from services.scheduler import stop_scheduler
+    stop_scheduler()
 
 
 app.include_router(router)
+app.include_router(scheduler_router)
