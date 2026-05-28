@@ -45,6 +45,16 @@ def main() -> None:
     short_doc = collector._json_post_to_doc({"id": "short", "title": "LG", "selftext": ""}, "LG")
     assert short_doc is None
 
+    irrelevant = collector._json_post_to_doc(
+        {
+            "id": "noise",
+            "title": "A fantasy story about cooling fans",
+            "selftext": "This is a long story about malware, cooling fans, filter rules, and a computer review mentioning LG once with no appliance VOC.",
+        },
+        "LG air purifier",
+    )
+    assert irrelevant is None
+
     print("Reddit collector JSON fallback smoke test 통과")
 
 

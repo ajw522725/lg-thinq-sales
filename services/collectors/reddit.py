@@ -39,6 +39,19 @@ _COMPETITOR_KEYWORDS = [
     "xiaomi", "샤오미", "carrier", "캐리어", "winix", "위니아",
 ]
 
+_LG_TERMS = {"lg", "thinq", "puricare", "whisen", "휘센", "퓨리케어", "디오스", "트롬", "오브제"}
+_PRODUCT_TERMS = {
+    "air": {"air purifier", "purifier", "puricare", "pm2.5", "air quality", "공기청정", "미세먼지"},
+    "purifier": {"air purifier", "purifier", "puricare", "pm2.5", "air quality", "공기청정", "미세먼지"},
+    "ac": {"air conditioner", "ac", "hvac", "cooling", "inverter", "에어컨", "냉방"},
+    "conditioner": {"air conditioner", "ac", "hvac", "cooling", "inverter", "에어컨", "냉방"},
+    "washer": {"washer", "washing machine", "dryer", "laundry", "세탁기", "건조기"},
+    "dryer": {"washer", "washing machine", "dryer", "laundry", "세탁기", "건조기"},
+    "refrigerator": {"refrigerator", "fridge", "freezer", "compressor", "냉장고"},
+    "fridge": {"refrigerator", "fridge", "freezer", "compressor", "냉장고"},
+    "tv": {"tv", "oled", "qned", "webos", "올레드"},
+}
+
 
 class RedditCollector(BaseCollector):
     """PRAW 또는 public JSON fallback을 이용한 Reddit VOC 수집기."""
@@ -187,8 +200,10 @@ class RedditCollector(BaseCollector):
         content = post.selftext or post.title
         if len(content.strip()) < 20:  # 너무 짧은 포스트 제외
             return None
+        if not self._is_relevant_post(post.title, content, keyword):
+            return None
 
-        lower = content.lower()
+        lower = f"{post.title} {content}".lower()
         competitors = [c for c in _COMPETITOR_KEYWORDS if c in lower]
 
         published_at = datetime.fromtimestamp(post.created_utc, tz=timezone.utc)
@@ -218,6 +233,8 @@ class RedditCollector(BaseCollector):
         content = selftext or title
         if len(content) < 20:
             return None
+        if not self._is_relevant_post(title, content, keyword):
+            return None
 
         lower = f"{title} {content}".lower()
         competitors = [c for c in _COMPETITOR_KEYWORDS if c in lower]
@@ -244,6 +261,25 @@ class RedditCollector(BaseCollector):
                 "collection_method": "public_json",
             },
         )
+
+    @staticmethod
+    def _is_relevant_post(title: str, content: str, keyword: str) -> bool:
+        """Reddit 검색 결과 중 LG 가전 VOC로 보기 어려운 글을 제외한다."""
+        combined = f"{title} {content}".lower()
+        keyword_lower = keyword.lower()
+
+        has_lg_signal = any(term in combined for term in _LG_TERMS)
+        if not has_lg_signal:
+            return False
+
+        required_terms: set[str] = set()
+        for token, terms in _PRODUCT_TERMS.items():
+            if token in keyword_lower:
+                required_terms.update(terms)
+
+        if not required_terms:
+            return True
+        return any(term in combined for term in required_terms)
 
     # ── DEMO 데이터 ────────────────────────────────────────────────────────────
 
