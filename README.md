@@ -359,6 +359,80 @@ VOC text
 
 ## 팀원별 다음 확인 항목
 
+## 발표 전 최종 실행 순서
+
+팀원 모두 아래 순서로 로컬에서 같은 demo 상태를 재현합니다.
+
+1. 최신 main 반영
+
+```bash
+cd /Users/jwa/lg-thinq-sales
+git checkout main
+git pull origin main
+```
+
+2. 백엔드 실행
+
+```bash
+cd /Users/jwa/lg-thinq-sales
+source .venv/bin/activate
+PYTHONPATH=/Users/jwa/lg-thinq-sales:/Users/jwa/lg-thinq-sales/apps/api \
+  uvicorn app.main:app --reload --port 8000
+```
+
+3. demo data 적재
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/demo/seed?reset=true"
+```
+
+4. 프론트엔드 실행
+
+```bash
+cd /Users/jwa/lg-thinq-sales/apps/web
+npm run dev
+```
+
+5. 브라우저 확인
+
+```text
+http://localhost:3000
+http://localhost:3000/voc
+http://localhost:3000/lead-scoring
+http://localhost:3000/strategy-insights
+```
+
+프론트엔드만 먼저 보고 싶으면 `apps/web`에서 `npm run dev`만 실행해도 됩니다. 다만 실제 DB/API 기반 end-to-end 화면을 보려면 백엔드 실행과 demo seed가 먼저 필요합니다.
+
+## 발표 전 최종 역할별 체크리스트
+
+### `ajw522725` PM / Backend Integration
+
+- 백엔드, DB seed, 프론트 dev 서버가 한 번에 실행되는지 확인합니다.
+- `/api/v1/dashboard/summary`, `/api/v1/vocs`, `/api/v1/lead-scores`, `/api/v1/insights`가 200 응답인지 확인합니다.
+- TablePlus에서 `raw_documents`, `processed_vocs`, `lead_scores`, `external_contexts`, `context_matches`, `strategy_insights` row count를 확인합니다.
+- 발표 데모 순서를 Dashboard → VOC Analysis → Lead Scoring → Strategy Insights로 고정합니다.
+
+### `wldnjsrla085` Data Collection
+
+- `scripts/run_collector_ingestion_demo.py --dry-run`으로 collector output 매핑을 확인합니다.
+- Reddit live fallback은 발표 보조 시나리오로만 사용하고, 실패 시 demo seed를 기준으로 발표합니다.
+- Danawa live 리뷰 전문 수집은 세션 쿠키가 필요할 수 있으므로 MVP에서는 demo source로 설명합니다.
+
+### `yuna0822` AI/NLP
+
+- `/api/v1/nlp/analyze`, `/api/v1/pipeline/run`, `/api/v1/demo/run` 단독 분석 endpoint를 확인합니다.
+- `DB_PIPELINE_PROVIDER=yuna` 실행 시 seed 결과가 정상 저장되는지 확인합니다.
+- 발표용으로 설명할 sentiment, intent, lead score, insight 예시를 2개 이상 고릅니다.
+
+### `sksmsdngml-ui` Frontend/UI
+
+- API 서버가 켜진 상태에서 4개 화면이 API 데이터를 우선 표시하는지 확인합니다.
+- API 서버가 꺼진 상태의 fallback 화면도 확인합니다.
+- 발표 화면에서 text overflow, chart 깨짐, 모바일/데스크톱 layout 깨짐이 없는지 확인합니다.
+
+## 팀원별 다음 확인 항목
+
 ### `wldnjsrla085` Data Collection
 
 - `USE_DEMO_DATA=true python -m services.collectors.runner ...`가 로컬에서 통과하는지 확인합니다.
