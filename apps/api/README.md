@@ -30,9 +30,28 @@ DATABASE_URL=postgresql+psycopg://lg_thinq:lg_thinq@localhost:5432/lg_thinq_sale
 DEMO_MODE=true
 LLM_PROVIDER=demo
 DB_PIPELINE_PROVIDER=legacy
+AUTO_CREATE_TABLES=true
 ```
 
 `DB_PIPELINE_PROVIDER=legacy`는 기존 DB seed/ingestion용 rule-based pipeline을 사용합니다. `DB_PIPELINE_PROVIDER=yuna`로 실행하면 `services/nlp`, `services/scoring`, `services/insights`의 통합 pipeline으로 분석 결과를 DB에 저장합니다.
+
+`AUTO_CREATE_TABLES=true`는 로컬 MVP fallback입니다. Alembic migration만 사용할 때는 `AUTO_CREATE_TABLES=false`로 실행합니다.
+
+DB schema 적용:
+
+```bash
+cd /Users/jwa/lg-thinq-sales
+source .venv/bin/activate
+PYTHONPATH=/Users/jwa/lg-thinq-sales:/Users/jwa/lg-thinq-sales/apps/api \
+  alembic upgrade head
+```
+
+이미 `create_all()`로 테이블이 만들어진 기존 로컬 DB에서는 아래 명령으로 현재 schema를 Alembic 적용 상태로 표시합니다.
+
+```bash
+PYTHONPATH=/Users/jwa/lg-thinq-sales:/Users/jwa/lg-thinq-sales/apps/api \
+  alembic stamp head
+```
 
 백엔드를 실행합니다.
 
@@ -144,7 +163,8 @@ SSL Mode: Disable
 ## 검증
 
 ```bash
-PYTHONPATH=/Users/jwa/lg-thinq-sales:/Users/jwa/lg-thinq-sales/apps/api python -m compileall apps/api/app services scripts
+PYTHONPATH=/Users/jwa/lg-thinq-sales:/Users/jwa/lg-thinq-sales/apps/api python -m compileall apps/api/app services scripts db/migrations
+PYTHONPATH=/Users/jwa/lg-thinq-sales:/Users/jwa/lg-thinq-sales/apps/api alembic upgrade head
 curl http://localhost:8000/api/v1/dashboard/summary
 ```
 
@@ -152,6 +172,9 @@ Codex 최종 확인 결과:
 
 ```text
 compileall: 통과
+alembic upgrade head: 통과
+AUTO_CREATE_TABLES=false + demo seed: 통과
+AUTO_CREATE_TABLES=false + DB_PIPELINE_PROVIDER=yuna + demo seed: 통과
 API smoke test: health, seed, dashboard, vocs, voc stats, lead scores, insights, nlp, pipeline, demo run 모두 200
 collector demo runner: 통과
 collector demo output -> ingestion endpoint -> DB 저장: 통과

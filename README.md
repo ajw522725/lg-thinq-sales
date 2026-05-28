@@ -83,12 +83,31 @@ DATABASE_URL=postgresql+psycopg://lg_thinq:lg_thinq@localhost:5432/lg_thinq_sale
 DEMO_MODE=true
 LLM_PROVIDER=demo
 DB_PIPELINE_PROVIDER=legacy
+AUTO_CREATE_TABLES=true
 ```
 
 `DB_PIPELINE_PROVIDER`는 DB 저장 pipeline에서 사용할 분석 엔진을 선택합니다.
 
 - `legacy`: 기존 Phase 1 rule-based NLP/Scoring/Insight 흐름입니다. 기본값입니다.
 - `yuna`: `services/nlp`, `services/scoring`, `services/insights`의 통합 pipeline을 사용합니다.
+
+`AUTO_CREATE_TABLES=true`는 로컬 MVP 편의를 위해 서버 시작 시 SQLAlchemy `create_all()`을 실행합니다. Alembic migration만 사용하려면 `AUTO_CREATE_TABLES=false`로 실행하세요.
+
+DB schema를 Alembic으로 적용합니다.
+
+```bash
+cd /Users/jwa/lg-thinq-sales
+source .venv/bin/activate
+PYTHONPATH=/Users/jwa/lg-thinq-sales:/Users/jwa/lg-thinq-sales/apps/api \
+  alembic upgrade head
+```
+
+이미 `create_all()`로 테이블이 생성된 기존 로컬 DB는 중복 생성 오류를 피하기 위해 현재 schema를 Alembic 적용 상태로 표시합니다.
+
+```bash
+PYTHONPATH=/Users/jwa/lg-thinq-sales:/Users/jwa/lg-thinq-sales/apps/api \
+  alembic stamp head
+```
 
 백엔드를 실행합니다.
 
@@ -246,7 +265,10 @@ npm run build
 Codex 통합 확인 결과:
 
 ```text
-compileall apps/api/app services scripts: 통과
+compileall apps/api/app services scripts db/migrations: 통과
+alembic upgrade head: 통과
+AUTO_CREATE_TABLES=false + demo seed: 통과
+AUTO_CREATE_TABLES=false + DB_PIPELINE_PROVIDER=yuna + demo seed: 통과
 collector demo runner: 통과
 API smoke test 10개 endpoint: 모두 200
 npm run typecheck: 통과
@@ -267,7 +289,7 @@ Pydantic protected namespace 경고: model_version, model_used 필드명 관련 
 - X/Twitter collector는 아직 구현되지 않았습니다.
 - 실제 OpenAI/Gemini API 호출은 demo mode에서는 하지 않습니다.
 - 실제 기상청, AirKorea, 전기요금, 입주물량 API는 아직 연결하지 않았습니다.
-- PostgreSQL + SQLAlchemy 저장 구조를 사용합니다. migration은 아직 Alembic이 아니라 `Base.metadata.create_all()` 방식입니다.
+- PostgreSQL + SQLAlchemy 저장 구조를 사용합니다. Alembic 초기 migration을 제공하며, 로컬 MVP fallback으로 `Base.metadata.create_all()`을 유지합니다.
 - CRM/ERP 연동, 자동 이메일/문자 발송, 실시간 스트리밍은 MVP 범위에서 제외했습니다.
 
 ## 현재 구현된 end-to-end 흐름
@@ -324,7 +346,6 @@ VOC text
 
 ## 다음 구현 추천 단계
 
-1. Alembic migration 체계를 추가합니다.
-2. Danawa 또는 Reddit live connector를 하나만 우선 안정화합니다.
-3. 외부 데이터 매칭을 기상청/AirKorea demo adapter부터 확장합니다.
-4. LLM gateway를 추가하되 demo mode와 production mode를 명확히 분리합니다.
+1. Danawa 또는 Reddit live connector를 하나만 우선 안정화합니다.
+2. 외부 데이터 매칭을 기상청/AirKorea demo adapter부터 확장합니다.
+3. LLM gateway를 추가하되 demo mode와 production mode를 명확히 분리합니다.

@@ -6,6 +6,7 @@
 
 - API prefix는 `/api/v1`입니다.
 - 현재 MVP는 PostgreSQL + SQLAlchemy 저장 구조를 사용합니다.
+- DB schema는 Alembic migration으로 관리하며, 로컬 MVP fallback으로 `AUTO_CREATE_TABLES=true`를 지원합니다.
 - 실제 외부 API나 실제 LLM이 아직 없을 경우 demo/stub임을 명확히 표시합니다.
 - 프론트엔드가 사용하는 기존 response shape은 유지합니다.
 
@@ -342,10 +343,13 @@ PYTHONPATH=/Users/jwa/lg-thinq-sales \
 
 ## Codex 확인 결과
 
-2026-05-27 기준 main에서 확인한 결과입니다.
+2026-05-28 기준 main에서 확인한 결과입니다.
 
 ```text
-python -m compileall apps/api/app services scripts: 통과
+python -m compileall apps/api/app services scripts db/migrations: 통과
+alembic upgrade head: 통과
+AUTO_CREATE_TABLES=false + demo seed: 통과
+AUTO_CREATE_TABLES=false + DB_PIPELINE_PROVIDER=yuna + demo seed: 통과
 npm run typecheck: 통과
 npm run lint: 통과
 npm run build: 통과

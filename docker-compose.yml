@@ -18,6 +18,7 @@ services:
     environment:
       PYTHONPATH: /app:/app/apps/api
       DEMO_MODE: "true"
+      AUTO_CREATE_TABLES: "true"
       DATABASE_URL: postgresql+psycopg://lg_thinq:lg_thinq@postgres:5432/lg_thinq_sales
     volumes:
       - .:/app

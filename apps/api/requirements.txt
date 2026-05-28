@@ -4,6 +4,7 @@ pydantic==2.7.4
 SQLAlchemy==2.0.31
 psycopg[binary]==3.2.13
 pydantic-settings==2.3.4
+alembic==1.12.1
 eval_type_backport==0.2.2
 langdetect==1.0.9
 kiwipiepy
