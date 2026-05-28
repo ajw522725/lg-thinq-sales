@@ -11,6 +11,7 @@ import logging
 from uuid import uuid4
 
 from ..nlp.models import ProcessedVOCInput
+from .demo_external_adapter import normalize_product_category
 from .models import ContextMatchResult, ContextEnrichmentResult, ExternalContextData
 
 logger = logging.getLogger(__name__)
@@ -65,11 +66,10 @@ def _demo_context_match(voc: ProcessedVOCInput) -> ContextEnrichmentResult:
     Demo 모드: 실제 API 호출 없이 제품군 + 키워드 기반으로 context 점수 추정
     """
     text_lower = voc.normalized_text.lower()
+    product_category = normalize_product_category(voc.product_category)
 
     # 제품군 기반 기본 점수
-    relevant_types = PRODUCT_CONTEXT_MAP.get(
-        voc.product_category, PRODUCT_CONTEXT_MAP["default"]
-    )
+    relevant_types = PRODUCT_CONTEXT_MAP.get(product_category, PRODUCT_CONTEXT_MAP["default"])
     base_score = 0.3 if relevant_types else 0.0
 
     # VOC 키워드 기반 추가 점수
@@ -82,17 +82,17 @@ def _demo_context_match(voc: ProcessedVOCInput) -> ContextEnrichmentResult:
     aggregated_score = round(min(base_score + keyword_bonus, 1.0), 4)
 
     description = (
-        f"[Demo] 제품군={voc.product_category}, "
+        f"[Demo] 제품군={product_category}, "
         f"연관 context={relevant_types}, "
         f"키워드 매칭={list(set(matched_types))}"
-    ) if matched_types else f"[Demo] 제품군={voc.product_category} 기본 점수"
+    ) if matched_types else f"[Demo] 제품군={product_category} 기본 점수"
 
     # Demo context 매치 객체 생성 (실제 DB ID 없음)
     demo_matches = [
         ContextMatchResult(
             voc_id=voc.id,
             external_context_id=uuid4(),
-            match_reason=f"제품군({voc.product_category}) → {ctx_type}",
+            match_reason=f"제품군({product_category}) → {ctx_type}",
             match_score=round(aggregated_score, 4),
             context_type=ctx_type,
             context_summary=f"[Demo] {ctx_type} 데이터 연관",
@@ -115,9 +115,8 @@ def fetch_and_match(voc: ProcessedVOCInput) -> ContextEnrichmentResult:
     """
     from .api_client import fetch_weather, fetch_air_quality
 
-    relevant_types = PRODUCT_CONTEXT_MAP.get(
-        voc.product_category, PRODUCT_CONTEXT_MAP["default"]
-    )
+    product_category = normalize_product_category(voc.product_category)
+    relevant_types = PRODUCT_CONTEXT_MAP.get(product_category, PRODUCT_CONTEXT_MAP["default"])
     region = _extract_region(voc.normalized_text)
     date = voc.published_at
 
@@ -144,6 +143,7 @@ def _real_context_match(
     """실제 외부 데이터 기반 매핑 (TRD 10.2)"""
     matches: list[ContextMatchResult] = []
     total_score = 0.0
+    product_category = normalize_product_category(voc.product_category)
 
     for ctx in contexts:
         score = _score_context_relevance(voc, ctx)
@@ -151,7 +151,7 @@ def _real_context_match(
             matches.append(ContextMatchResult(
                 voc_id=voc.id,
                 external_context_id=ctx.id,
-                match_reason=f"제품군({voc.product_category}) + {ctx.context_type}",
+                match_reason=f"제품군({product_category}) + {ctx.context_type}",
                 match_score=score,
                 context_type=ctx.context_type,
                 context_summary=_summarize_context(ctx),
@@ -171,7 +171,8 @@ def _real_context_match(
 
 def _score_context_relevance(voc: ProcessedVOCInput, ctx: ExternalContextData) -> float:
     """VOC-Context 연관도 점수 (0~1)"""
-    relevant_types = PRODUCT_CONTEXT_MAP.get(voc.product_category, [])
+    product_category = normalize_product_category(voc.product_category)
+    relevant_types = PRODUCT_CONTEXT_MAP.get(product_category, [])
     if ctx.context_type not in relevant_types:
         return 0.0
 
@@ -186,13 +187,13 @@ def _score_context_relevance(voc: ProcessedVOCInput, ctx: ExternalContextData) -
     if ctx.context_type == "weather":
         temp = ctx.data.get("temperature") or ctx.data.get("season", "")
         season = ctx.data.get("season", "")
-        if season in ("여름", "겨울") and voc.product_category in ("air_conditioner", "dehumidifier"):
+        if season in ("여름", "겨울") and product_category in ("air_conditioner", "dehumidifier"):
             bonus += 0.2
 
     # 공기질: 나쁨 등급 + 공기청정기
     if ctx.context_type == "air_quality":
         grade = str(ctx.data.get("grade", ""))
-        if grade in ("나쁨", "매우나쁨", "4", "3") and voc.product_category == "air_purifier":
+        if grade in ("나쁨", "매우나쁨", "4", "3") and product_category == "air_purifier":
             bonus += 0.25
 
     return round(min(base + bonus, 1.0), 4)

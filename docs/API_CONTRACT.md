@@ -226,7 +226,14 @@ GET /api/v1/demo/run
     "context_type": "energy",
     "region": "Seoul",
     "match_reason": "energy efficiency keyword",
-    "match_score": 0.74
+    "match_score": 0.74,
+    "context_summary": "냉방 수요 증가와 전기요금 민감도 중간",
+    "context_data": {
+      "source": "demo-energy-context",
+      "electricity_price_pressure": "medium"
+    },
+    "source_name": "demo-energy-context",
+    "observed_at": "2026-05-20T09:10:00Z"
   }
 }
 ```
@@ -372,6 +379,8 @@ Danawa parser smoke test: 통과
 Reddit public JSON fallback smoke test: 통과
 Reddit public JSON fallback live run: 2건 수집 확인
 Reddit public JSON fallback live run -> ingestion endpoint -> DB 저장: 통과
+context demo adapter smoke test: 통과
+legacy/yuna DB pipeline context 저장: 통과
 ```
 
 현재 남은 warning:
@@ -383,8 +392,9 @@ Pydantic protected namespace 경고: model_version, model_used 필드명 관련 
 ## 현재 demo/stub 범위
 
 - 실제 OpenAI/Gemini API는 아직 연결하지 않았습니다.
-- 실제 기상청/AirKorea API는 아직 연결하지 않았습니다.
-- context matching은 `services/context/demo_context_matcher.py` 기반 demo logic입니다.
+- 실제 기상청/AirKorea API key 연동은 아직 운영 모드로 연결하지 않았습니다.
+- context matching은 `services/context/demo_external_adapter.py` 기반 demo 외부 데이터 adapter를 사용합니다.
+- DB pipeline은 weather, air_quality, energy, housing, subscription demo context를 `external_contexts.data`에 저장합니다.
 - NLP와 Lead Score는 rule-based baseline입니다.
 - Danawa/Reddit/NaverBlog/YouTube collector는 demo mode에서 검증되었습니다.
 - Reddit live mode는 public JSON fallback으로 API key 없이 2건 수집을 확인했습니다.

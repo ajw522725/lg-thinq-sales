@@ -114,11 +114,14 @@ def ingest_voc_items(db: Session, raw_items: list[dict[str, Any]], reset: bool =
             context_type=voc_record.context.context_type,
             region=voc_record.context.region,
             data={
-                "source": "demo_context_matcher",
+                "source": voc_record.context.source_name,
                 "match_reason": voc_record.context.match_reason,
+                "context_summary": voc_record.context.context_summary,
+                **voc_record.context.context_data,
                 "product_category": voc_record.voc.product_category,
             },
-            source_name="demo-context",
+            observed_at=voc_record.context.observed_at,
+            source_name=voc_record.context.source_name,
         )
         insight_model = models.StrategyInsight(
             id=str(voc_record.insight.id),
@@ -251,6 +254,10 @@ def to_voc_record(voc: models.ProcessedVOC) -> VocRecord:
         region=context_match.external_context.region,
         match_reason=context_match.match_reason,
         match_score=context_match.match_score,
+        context_summary=context_match.external_context.data.get("context_summary"),
+        context_data=context_match.external_context.data,
+        source_name=context_match.external_context.source_name,
+        observed_at=context_match.external_context.observed_at,
     )
     return VocRecord(voc=processed_schema, analysis=analysis_schema, lead_score=lead_score_schema, insight=insight_schema, context=context_schema)
 

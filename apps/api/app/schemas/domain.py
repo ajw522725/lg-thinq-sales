@@ -106,6 +106,10 @@ class ContextMatch(BaseModel):
     region: str
     match_reason: str
     match_score: float
+    context_summary: Optional[str] = None
+    context_data: dict[str, Any] = Field(default_factory=dict)
+    source_name: str = "demo-context"
+    observed_at: Optional[datetime] = None
 
 
 class VocRecord(BaseModel):

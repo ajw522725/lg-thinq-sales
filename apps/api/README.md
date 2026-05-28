@@ -182,6 +182,8 @@ compileall: 통과
 alembic upgrade head: 통과
 AUTO_CREATE_TABLES=false + demo seed: 통과
 AUTO_CREATE_TABLES=false + DB_PIPELINE_PROVIDER=yuna + demo seed: 통과
+context demo adapter smoke test: 통과
+legacy/yuna DB pipeline context 저장: 통과
 API smoke test: health, seed, dashboard, vocs, voc stats, lead scores, insights, nlp, pipeline, demo run 모두 200
 collector demo runner: 통과
 collector demo output -> ingestion endpoint -> DB 저장: 통과

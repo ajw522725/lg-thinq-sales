@@ -288,6 +288,8 @@ Danawa parser smoke test: 통과
 Reddit public JSON fallback smoke test: 통과
 Reddit live fallback 2건 수집: 통과
 Reddit live fallback 2건 -> /api/v1/ingestion/vocs -> DB 저장: 통과
+context demo adapter smoke test: 통과
+legacy/yuna DB pipeline context 저장: 통과
 API smoke test 10개 endpoint: 모두 200
 npm run typecheck: 통과
 npm run lint: 통과
@@ -308,7 +310,8 @@ Pydantic protected namespace 경고: model_version, model_used 필드명 관련 
 - Danawa live mode는 상품 검색까지 가능하지만, 리뷰 전문 수집은 `DANAWA_SESSION_COOKIE`가 필요할 수 있습니다.
 - X/Twitter collector는 아직 구현되지 않았습니다.
 - 실제 OpenAI/Gemini API 호출은 demo mode에서는 하지 않습니다.
-- 실제 기상청, AirKorea, 전기요금, 입주물량 API는 아직 연결하지 않았습니다.
+- 실제 기상청, AirKorea API key 운영 연동은 아직 연결하지 않았습니다.
+- 외부 데이터 context는 `services/context/demo_external_adapter.py` 기반 demo adapter로 weather, air_quality, energy, housing, subscription context를 생성해 DB에 저장합니다.
 - PostgreSQL + SQLAlchemy 저장 구조를 사용합니다. Alembic 초기 migration을 제공하며, 로컬 MVP fallback으로 `Base.metadata.create_all()`을 유지합니다.
 - CRM/ERP 연동, 자동 이메일/문자 발송, 실시간 스트리밍은 MVP 범위에서 제외했습니다.
 
@@ -321,7 +324,7 @@ Demo VOC 수집
 → 텍스트 정규화
 → 룰 기반 sentiment / intent / urgency / topic 분석
 → lead score 계산
-→ demo 외부 맥락 매칭
+→ demo 외부 맥락 매칭 및 ExternalContext 저장
 → demo strategy insight 생성
 → PostgreSQL 저장
 → FastAPI endpoint 제공
@@ -361,10 +364,10 @@ VOC text
 ### `ajw522725` PM / Backend Integration
 
 - main merge 후 `compileall`, API smoke test, frontend build를 실행합니다.
-- TablePlus에서 seed/ingestion 후 `raw_documents`, `processed_vocs`, `lead_scores`, `strategy_insights` row count를 확인합니다.
+- TablePlus에서 seed/ingestion 후 `raw_documents`, `processed_vocs`, `lead_scores`, `external_contexts`, `context_matches`, `strategy_insights` row count를 확인합니다.
 - `legacy`, `yuna` 두 DB pipeline provider가 모두 seed/ingestion에서 깨지지 않는지 확인합니다.
 
 ## 다음 구현 추천 단계
 
-1. 외부 데이터 매칭을 기상청/AirKorea demo adapter부터 확장합니다.
-2. LLM gateway를 추가하되 demo mode와 production mode를 명확히 분리합니다.
+1. LLM gateway를 추가하되 demo mode와 production mode를 명확히 분리합니다.
+2. 기상청/AirKorea 실제 API key 기반 live adapter를 운영 모드로 분리합니다.

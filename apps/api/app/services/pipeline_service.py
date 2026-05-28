@@ -98,7 +98,12 @@ def _build_legacy_voc_record(
         lead_score_id=lead_score.id,
         **insight_payload,
     )
-    context_payload = match_context(processed.product_category, processed.normalized_text, processed.region)
+    context_payload = match_context(
+        processed.product_category,
+        processed.normalized_text,
+        processed.region,
+        observed_at=raw_document.published_at,
+    )
     context = ContextMatch(voc_id=processed.id, **context_payload)
     return VocRecord(voc=processed, analysis=analysis, lead_score=lead_score, insight=insight, context=context)
 
@@ -111,6 +116,7 @@ def _build_yuna_voc_record(
     rating: Any,
 ) -> VocRecord:
     from services.insights.pipeline import generate_insight
+    from services.context.matcher import fetch_and_match
     from services.nlp.models import ProcessedVOCInput
     from services.nlp.pipeline import run_nlp_pipeline
     from services.scoring.pipeline import run_lead_scoring
@@ -139,8 +145,13 @@ def _build_yuna_voc_record(
         platform_meta={**raw_document.platform_meta, "engagement": engagement},
     )
     yuna_nlp = run_nlp_pipeline(yuna_input)
-    yuna_score = run_lead_scoring(yuna_nlp, yuna_input)
-    yuna_insight = generate_insight(yuna_nlp, yuna_input, yuna_score).insight
+    context_enrichment = fetch_and_match(yuna_input)
+    yuna_score = run_lead_scoring(
+        yuna_nlp,
+        yuna_input,
+        external_context_score=context_enrichment.aggregated_context_score,
+    )
+    yuna_insight = generate_insight(yuna_nlp, yuna_input, yuna_score, context=context_enrichment).insight
 
     competitor_mentions = [
         name for name, count in yuna_nlp.competitor_mentions.items() if int(count or 0) > 0
@@ -187,7 +198,12 @@ def _build_yuna_voc_record(
         prompt_version=yuna_insight.prompt_version,
         created_at=yuna_insight.created_at,
     )
-    context_payload = match_context(processed.product_category, processed.normalized_text, processed.region)
+    context_payload = match_context(
+        processed.product_category,
+        processed.normalized_text,
+        processed.region,
+        observed_at=raw_document.published_at,
+    )
     context = ContextMatch(voc_id=processed.id, **context_payload)
     return VocRecord(voc=processed, analysis=analysis, lead_score=lead_score, insight=insight, context=context)
 
