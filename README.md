@@ -82,6 +82,8 @@ psql -d lg_thinq_sales -c "GRANT ALL ON SCHEMA public TO lg_thinq;"
 DATABASE_URL=postgresql+psycopg://lg_thinq:lg_thinq@localhost:5432/lg_thinq_sales
 DEMO_MODE=true
 LLM_PROVIDER=demo
+LLM_FALLBACK_TO_DEMO=true
+LLM_TIMEOUT_SECONDS=30
 DB_PIPELINE_PROVIDER=legacy
 AUTO_CREATE_TABLES=true
 ```
@@ -90,6 +92,19 @@ AUTO_CREATE_TABLES=true
 
 - `legacy`: 기존 Phase 1 rule-based NLP/Scoring/Insight 흐름입니다. 기본값입니다.
 - `yuna`: `services/nlp`, `services/scoring`, `services/insights`의 통합 pipeline을 사용합니다.
+
+`LLM_PROVIDER`는 `demo`, `openai`, `gemini`를 지원합니다. 기본값은 `demo`이며, `LLM_FALLBACK_TO_DEMO=true`이면 API key 누락이나 provider 호출 실패 시 demo insight로 안전하게 전환합니다.
+
+실제 OpenAI provider를 사용할 때:
+
+```bash
+DEMO_MODE=false
+LLM_PROVIDER=openai
+OPENAI_API_KEY=...
+OPENAI_MODEL=gpt-4o
+```
+
+Gemini provider는 `GEMINI_API_KEY`, `GEMINI_MODEL`을 사용합니다. Gemini Python SDK가 로컬에 없으면 demo fallback으로 전환됩니다.
 
 `AUTO_CREATE_TABLES=true`는 로컬 MVP 편의를 위해 서버 시작 시 SQLAlchemy `create_all()`을 실행합니다. Alembic migration만 사용하려면 `AUTO_CREATE_TABLES=false`로 실행하세요.
 
@@ -290,6 +305,8 @@ Reddit live fallback 2건 수집: 통과
 Reddit live fallback 2건 -> /api/v1/ingestion/vocs -> DB 저장: 통과
 context demo adapter smoke test: 통과
 legacy/yuna DB pipeline context 저장: 통과
+LLM gateway smoke test: 통과
+DEMO_MODE=false + LLM_PROVIDER=openai + API key 없음 + demo fallback: 통과
 API smoke test 10개 endpoint: 모두 200
 npm run typecheck: 통과
 npm run lint: 통과
@@ -309,7 +326,7 @@ Pydantic protected namespace 경고: model_version, model_used 필드명 관련 
 - Reddit live mode는 PRAW credential이 없을 때 public JSON fallback으로 동작합니다. Reddit 제한 응답 또는 네트워크 차단 시 빈 리스트로 안전 종료합니다.
 - Danawa live mode는 상품 검색까지 가능하지만, 리뷰 전문 수집은 `DANAWA_SESSION_COOKIE`가 필요할 수 있습니다.
 - X/Twitter collector는 아직 구현되지 않았습니다.
-- 실제 OpenAI/Gemini API 호출은 demo mode에서는 하지 않습니다.
+- LLM gateway는 `demo`, `openai`, `gemini` provider 분기와 demo fallback을 지원합니다. demo mode에서는 실제 OpenAI/Gemini API를 호출하지 않습니다.
 - 실제 기상청, AirKorea API key 운영 연동은 아직 연결하지 않았습니다.
 - 외부 데이터 context는 `services/context/demo_external_adapter.py` 기반 demo adapter로 weather, air_quality, energy, housing, subscription context를 생성해 DB에 저장합니다.
 - PostgreSQL + SQLAlchemy 저장 구조를 사용합니다. Alembic 초기 migration을 제공하며, 로컬 MVP fallback으로 `Base.metadata.create_all()`을 유지합니다.
@@ -369,5 +386,5 @@ VOC text
 
 ## 다음 구현 추천 단계
 
-1. LLM gateway를 추가하되 demo mode와 production mode를 명확히 분리합니다.
-2. 기상청/AirKorea 실제 API key 기반 live adapter를 운영 모드로 분리합니다.
+1. 기상청/AirKorea 실제 API key 기반 live adapter를 운영 모드로 분리합니다.
+2. 실제 LLM provider 사용 시 prompt 품질과 hallucination 방지 규칙을 평가합니다.

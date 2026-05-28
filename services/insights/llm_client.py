@@ -10,8 +10,11 @@ from __future__ import annotations
 import json
 import logging
 import os
+from typing import Any
 
 logger = logging.getLogger(__name__)
+
+REQUIRED_RESPONSE_KEYS = ("title", "summary", "recommended_action", "reasoning", "confidence")
 
 
 # ──────────────────────────────────────────────
@@ -84,20 +87,65 @@ def call_llm(
         nlp_context: Demo 모드에서 인사이트를 맥락화하기 위한 NLP 데이터
                      (topic_id, sentiment_label, keywords, competitor_mentions, product_category)
     """
-    provider = os.getenv("LLM_PROVIDER", "demo").lower()
-    demo_mode = os.getenv("DEMO_MODE", "true").lower() == "true"
+    provider = _provider()
 
-    if demo_mode or provider == "demo":
-        return _demo_response(priority, nlp_context)
+    if _is_demo_mode() or provider == "demo":
+        return _with_gateway_meta(
+            _demo_response(priority, nlp_context),
+            provider="demo",
+            model="demo-rule-generator",
+            is_demo=True,
+        )
 
+    try:
+        if provider == "openai":
+            raw = _call_openai(system_prompt, user_prompt)
+            return _with_gateway_meta(
+                _normalize_response(raw),
+                provider="openai",
+                model=os.getenv("OPENAI_MODEL", "gpt-4o"),
+                is_demo=False,
+            )
+
+        if provider == "gemini":
+            raw = _call_gemini(system_prompt, user_prompt)
+            return _with_gateway_meta(
+                _normalize_response(raw),
+                provider="gemini",
+                model=os.getenv("GEMINI_MODEL", "gemini-1.5-pro"),
+                is_demo=False,
+            )
+
+        raise RuntimeError(f"지원하지 않는 LLM_PROVIDER={provider}")
+    except Exception as exc:
+        if not _fallback_to_demo():
+            raise
+        logger.warning(f"LLM provider={provider} 호출 실패, demo fallback 사용: {exc}")
+        fallback = _demo_response(priority, nlp_context)
+        fallback["_fallback_reason"] = str(exc)
+        return _with_gateway_meta(
+            fallback,
+            provider=provider,
+            model="demo-rule-generator",
+            is_demo=True,
+        )
+
+
+def current_llm_model() -> str:
+    provider = _provider()
+    if _is_demo_mode() or provider == "demo":
+        return "demo-rule-generator"
     if provider == "openai":
-        return _call_openai(system_prompt, user_prompt)
-
+        return os.getenv("OPENAI_MODEL", "gpt-4o")
     if provider == "gemini":
-        return _call_gemini(system_prompt, user_prompt)
+        return os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
+    return "demo-rule-generator"
 
-    logger.warning(f"알 수 없는 LLM_PROVIDER={provider}, Demo 모드로 전환")
-    return _demo_response(priority, nlp_context)
+
+def is_demo_response(raw: dict[str, Any] | None = None) -> bool:
+    if raw and "_llm_is_demo" in raw:
+        return bool(raw["_llm_is_demo"])
+    return _is_demo_mode() or _provider() == "demo"
 
 
 def _demo_response(priority: str, ctx: dict | None = None) -> dict:
@@ -144,6 +192,72 @@ def _demo_response(priority: str, ctx: dict | None = None) -> dict:
     return base
 
 
+def _provider() -> str:
+    return os.getenv("LLM_PROVIDER", "demo").lower().strip()
+
+
+def _is_demo_mode() -> bool:
+    return os.getenv("DEMO_MODE", "true").lower() == "true"
+
+
+def _fallback_to_demo() -> bool:
+    return os.getenv("LLM_FALLBACK_TO_DEMO", "true").lower() == "true"
+
+
+def _timeout() -> float:
+    return float(os.getenv("LLM_TIMEOUT_SECONDS", "30"))
+
+
+def _with_gateway_meta(raw: dict[str, Any], provider: str, model: str, is_demo: bool) -> dict[str, Any]:
+    normalized = _normalize_response(raw)
+    for key, value in raw.items():
+        if key.startswith("_"):
+            normalized[key] = value
+    normalized["_llm_provider"] = provider
+    normalized["_llm_model"] = model
+    normalized["_llm_is_demo"] = is_demo
+    return normalized
+
+
+def _normalize_response(raw: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(raw, dict):
+        raise ValueError("LLM response must be a JSON object.")
+
+    result = {
+        "title": str(raw.get("title") or "전략 인사이트"),
+        "summary": str(raw.get("summary") or "VOC 분석 결과를 바탕으로 영업 후속 조치가 필요합니다."),
+        "recommended_action": str(raw.get("recommended_action") or "담당자가 VOC 맥락을 확인하고 맞춤 안내를 진행하세요."),
+        "reasoning": str(raw.get("reasoning") or "감성, 구매의도, 리드 점수, 외부 context를 기반으로 생성된 demo 인사이트입니다."),
+        "confidence": _clamp_confidence(raw.get("confidence", 0.5)),
+    }
+
+    missing = [key for key in REQUIRED_RESPONSE_KEYS if key not in raw]
+    if missing:
+        logger.info(f"LLM 응답 누락 필드 보정: {missing}")
+    return result
+
+
+def _clamp_confidence(value: Any) -> float:
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        parsed = 0.5
+    return round(max(0.0, min(parsed, 1.0)), 4)
+
+
+def _parse_json_object(text: str) -> dict[str, Any]:
+    stripped = text.strip()
+    if stripped.startswith("```"):
+        stripped = stripped.strip("`").strip()
+        if stripped.startswith("json"):
+            stripped = stripped[4:].strip()
+    start = stripped.find("{")
+    end = stripped.rfind("}")
+    if start == -1 or end == -1 or end < start:
+        raise ValueError("LLM response does not contain a JSON object.")
+    return json.loads(stripped[start : end + 1])
+
+
 # ──────────────────────────────────────────────
 # 토픽별 title / action 매핑
 # ──────────────────────────────────────────────
@@ -180,48 +294,44 @@ def _topic_title_action(
 
 def _call_openai(system_prompt: str, user_prompt: str) -> dict:
     """OpenAI API 호출 (Phase 6)"""
-    try:
-        from openai import OpenAI  # type: ignore
+    api_key = os.getenv("OPENAI_API_KEY", "")
+    if not api_key:
+        raise RuntimeError("OPENAI_API_KEY가 설정되지 않았습니다.")
 
-        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        model = os.getenv("OPENAI_MODEL", "gpt-4o")
+    from openai import OpenAI  # type: ignore
 
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            response_format={"type": "json_object"},
-            temperature=0.3,
-        )
-        return json.loads(response.choices[0].message.content)
+    client = OpenAI(api_key=api_key, timeout=_timeout())
+    model = os.getenv("OPENAI_MODEL", "gpt-4o")
 
-    except Exception as e:
-        logger.error(f"OpenAI API 호출 실패: {e} -Demo 모드로 폴백")
-        return _demo_response("medium")
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        response_format={"type": "json_object"},
+        temperature=float(os.getenv("LLM_TEMPERATURE", "0.3")),
+    )
+    content = response.choices[0].message.content or "{}"
+    return _parse_json_object(content)
 
 
 def _call_gemini(system_prompt: str, user_prompt: str) -> dict:
     """Gemini API 호출 (Phase 6)"""
-    try:
-        import google.generativeai as genai  # type: ignore
+    api_key = os.getenv("GEMINI_API_KEY", "")
+    if not api_key:
+        raise RuntimeError("GEMINI_API_KEY가 설정되지 않았습니다.")
 
-        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-        model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
-        model = genai.GenerativeModel(
-            model_name,
-            system_instruction=system_prompt,
-        )
-        response = model.generate_content(user_prompt)
-        # Gemini는 JSON 모드가 없으므로 텍스트에서 파싱
-        text = response.text.strip()
-        if text.startswith("```"):
-            text = text.split("```")[1]
-            if text.startswith("json"):
-                text = text[4:]
-        return json.loads(text)
+    import google.generativeai as genai  # type: ignore
 
-    except Exception as e:
-        logger.error(f"Gemini API 호출 실패: {e} -Demo 모드로 폴백")
-        return _demo_response("medium")
+    genai.configure(api_key=api_key)
+    model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
+    model = genai.GenerativeModel(
+        model_name,
+        system_instruction=system_prompt,
+    )
+    response = model.generate_content(
+        user_prompt,
+        generation_config={"temperature": float(os.getenv("LLM_TEMPERATURE", "0.3"))},
+    )
+    return _parse_json_object(response.text)

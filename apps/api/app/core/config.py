@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     version: str = "0.1.0"
     demo_mode: bool = True
     llm_provider: str = "demo"
+    llm_fallback_to_demo: bool = True
+    llm_timeout_seconds: float = 30.0
     db_pipeline_provider: str = "legacy"
     auto_create_tables: bool = True
     database_url: str = "postgresql+psycopg://lg_thinq:lg_thinq@localhost:5432/lg_thinq_sales"

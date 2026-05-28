@@ -7,6 +7,8 @@
 - API prefix는 `/api/v1`입니다.
 - 현재 MVP는 PostgreSQL + SQLAlchemy 저장 구조를 사용합니다.
 - DB schema는 Alembic migration으로 관리하며, 로컬 MVP fallback으로 `AUTO_CREATE_TABLES=true`를 지원합니다.
+- LLM gateway는 `LLM_PROVIDER=demo|openai|gemini`를 지원하고, 기본값은 API key가 필요 없는 `demo`입니다.
+- `LLM_FALLBACK_TO_DEMO=true`이면 실제 provider 호출 실패 시 demo insight로 안전하게 전환합니다.
 - 실제 외부 API나 실제 LLM이 아직 없을 경우 demo/stub임을 명확히 표시합니다.
 - 프론트엔드가 사용하는 기존 response shape은 유지합니다.
 
@@ -81,6 +83,17 @@ DB 저장 pipeline은 환경변수 `DB_PIPELINE_PROVIDER`로 선택합니다.
 - `yuna`: `services/nlp`, `services/scoring`, `services/insights`의 통합 pipeline을 사용합니다.
 
 두 모드 모두 API response shape은 `VocRecord`, `DashboardSummary`, `StrategyInsight` 계약을 유지해야 합니다.
+
+LLM provider 설정:
+
+```bash
+DEMO_MODE=true
+LLM_PROVIDER=demo
+LLM_FALLBACK_TO_DEMO=true
+LLM_TIMEOUT_SECONDS=30
+```
+
+실제 OpenAI provider를 검증할 때는 `DEMO_MODE=false`, `LLM_PROVIDER=openai`, `OPENAI_API_KEY`, `OPENAI_MODEL`을 설정합니다. Gemini provider는 `GEMINI_API_KEY`, `GEMINI_MODEL`을 사용합니다.
 
 ## NLP / Pipeline 단독 실행 계약
 
@@ -381,6 +394,8 @@ Reddit public JSON fallback live run: 2건 수집 확인
 Reddit public JSON fallback live run -> ingestion endpoint -> DB 저장: 통과
 context demo adapter smoke test: 통과
 legacy/yuna DB pipeline context 저장: 통과
+LLM gateway smoke test: 통과
+DEMO_MODE=false + LLM_PROVIDER=openai + API key 없음 + demo fallback: 통과
 ```
 
 현재 남은 warning:
@@ -391,7 +406,8 @@ Pydantic protected namespace 경고: model_version, model_used 필드명 관련 
 
 ## 현재 demo/stub 범위
 
-- 실제 OpenAI/Gemini API는 아직 연결하지 않았습니다.
+- LLM gateway는 demo/openai/gemini provider 분기와 demo fallback을 제공합니다. demo mode에서는 실제 OpenAI/Gemini API를 호출하지 않습니다.
+- OpenAI/Gemini 운영 호출은 API key와 provider 환경변수가 설정된 경우에만 사용합니다.
 - 실제 기상청/AirKorea API key 연동은 아직 운영 모드로 연결하지 않았습니다.
 - context matching은 `services/context/demo_external_adapter.py` 기반 demo 외부 데이터 adapter를 사용합니다.
 - DB pipeline은 weather, air_quality, energy, housing, subscription demo context를 `external_contexts.data`에 저장합니다.

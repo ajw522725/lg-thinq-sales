@@ -29,11 +29,24 @@ psql -d lg_thinq_sales -c "GRANT ALL ON SCHEMA public TO lg_thinq;"
 DATABASE_URL=postgresql+psycopg://lg_thinq:lg_thinq@localhost:5432/lg_thinq_sales
 DEMO_MODE=true
 LLM_PROVIDER=demo
+LLM_FALLBACK_TO_DEMO=true
+LLM_TIMEOUT_SECONDS=30
 DB_PIPELINE_PROVIDER=legacy
 AUTO_CREATE_TABLES=true
 ```
 
 `DB_PIPELINE_PROVIDER=legacy`는 기존 DB seed/ingestion용 rule-based pipeline을 사용합니다. `DB_PIPELINE_PROVIDER=yuna`로 실행하면 `services/nlp`, `services/scoring`, `services/insights`의 통합 pipeline으로 분석 결과를 DB에 저장합니다.
+
+`LLM_PROVIDER=demo`가 기본값입니다. `openai`, `gemini`로 바꿀 수 있지만 `DEMO_MODE=true`이면 실제 API는 호출하지 않습니다. API key 누락이나 호출 실패 시 `LLM_FALLBACK_TO_DEMO=true` 설정에 따라 demo insight로 fallback합니다.
+
+OpenAI provider 예시:
+
+```bash
+DEMO_MODE=false
+LLM_PROVIDER=openai
+OPENAI_API_KEY=...
+OPENAI_MODEL=gpt-4o
+```
 
 `AUTO_CREATE_TABLES=true`는 로컬 MVP fallback입니다. Alembic migration만 사용할 때는 `AUTO_CREATE_TABLES=false`로 실행합니다.
 
@@ -184,6 +197,8 @@ AUTO_CREATE_TABLES=false + demo seed: 통과
 AUTO_CREATE_TABLES=false + DB_PIPELINE_PROVIDER=yuna + demo seed: 통과
 context demo adapter smoke test: 통과
 legacy/yuna DB pipeline context 저장: 통과
+LLM gateway smoke test: 통과
+DEMO_MODE=false + LLM_PROVIDER=openai + API key 없음 + demo fallback: 통과
 API smoke test: health, seed, dashboard, vocs, voc stats, lead scores, insights, nlp, pipeline, demo run 모두 200
 collector demo runner: 통과
 collector demo output -> ingestion endpoint -> DB 저장: 통과

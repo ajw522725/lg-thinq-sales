@@ -12,7 +12,7 @@ from ..scoring.models import LeadScoreResult
 from ..context.models import ContextEnrichmentResult
 from .models import StrategyInsight, InsightGenerationResult
 from .prompt_builder import build_insight_prompt
-from .llm_client import call_llm
+from .llm_client import call_llm, current_llm_model, is_demo_response
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +47,10 @@ def generate_insight(
         "product_category": voc.product_category,
         "urgency_score": nlp.urgency_score,
     }
+    if context:
+        nlp_context["context_score"] = context.aggregated_context_score
+        nlp_context["context_description"] = context.context_description
+
     raw = call_llm(system_prompt, user_prompt, priority=score.priority, nlp_context=nlp_context)
 
     insight = StrategyInsight(
@@ -57,7 +61,7 @@ def generate_insight(
         recommended_action=raw.get("recommended_action", ""),
         reasoning=raw.get("reasoning", ""),
         confidence=float(raw.get("confidence", 0.5)),
-        llm_model=_current_llm_model(),
+        llm_model=raw.get("_llm_model", current_llm_model()),
     )
 
     logger.info(
@@ -68,7 +72,7 @@ def generate_insight(
         voc_id=nlp.voc_id,
         lead_score_id=score.id,
         insight=insight,
-        is_demo=_is_demo_mode(),
+        is_demo=is_demo_response(raw),
     )
 
 
@@ -106,18 +110,3 @@ def generate_insights_batch(
             logger.error(f"인사이트 생성 실패: voc_id={nlp.voc_id}, error={e}")
 
     return results
-
-
-def _is_demo_mode() -> bool:
-    import os
-    return os.getenv("DEMO_MODE", "true").lower() == "true"
-
-
-def _current_llm_model() -> str:
-    import os
-    provider = os.getenv("LLM_PROVIDER", "demo").lower()
-    if provider == "openai":
-        return os.getenv("OPENAI_MODEL", "gpt-4o")
-    if provider == "gemini":
-        return os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
-    return "demo"

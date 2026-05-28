@@ -20,6 +20,7 @@ def health() -> dict[str, str]:
         "status": "ok",
         "mode": "demo" if settings.demo_mode else "production",
         "llm_provider": settings.llm_provider,
+        "llm_fallback_to_demo": str(settings.llm_fallback_to_demo).lower(),
         "version": settings.version,
     }
 
