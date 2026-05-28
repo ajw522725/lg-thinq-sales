@@ -8,7 +8,12 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.core.config import settings
 
 
-engine = create_engine(settings.database_url, pool_pre_ping=True)
+_is_sqlite = settings.database_url.startswith("sqlite")
+_engine_kwargs: dict = {"pool_pre_ping": True}
+if _is_sqlite:
+    _engine_kwargs["connect_args"] = {"check_same_thread": False}
+
+engine = create_engine(settings.database_url, **_engine_kwargs)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
