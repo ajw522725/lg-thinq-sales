@@ -325,7 +325,10 @@ PYTHONPATH=/Users/jwa/lg-thinq-sales \
 - `--dry-run`: API 전송 없이 collector raw output -> ingestion payload 매핑만 확인합니다.
 - `--reset`: 전송 전 기존 DB pipeline 데이터를 삭제하고 재적재합니다.
 - `--limit N`: 전송할 VOC 수를 제한합니다.
+- `--source Reddit`: 특정 source만 실행합니다. `Danawa`, `Reddit`, `NaverBlog`, `YouTube`를 지원합니다.
 - `--live`: `USE_DEMO_DATA=false`로 live collector를 실행합니다. API key/session 설정이 필요할 수 있습니다.
+
+Reddit live mode는 `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`이 없으면 public JSON fallback을 사용합니다. Reddit 제한 응답, 네트워크 차단, 검색 결과 없음은 빈 리스트로 안전 종료합니다.
 
 ### AI/NLP 담당
 
@@ -365,6 +368,10 @@ POST /api/v1/pipeline/run: 200
 GET /api/v1/demo/run: 200
 collector demo runner: 통과
 collector demo output 5건 -> /api/v1/ingestion/vocs -> DB 저장: 통과
+Danawa parser smoke test: 통과
+Reddit public JSON fallback smoke test: 통과
+Reddit public JSON fallback live run: 2건 수집 확인
+Reddit public JSON fallback live run -> ingestion endpoint -> DB 저장: 통과
 ```
 
 현재 남은 warning:
@@ -379,5 +386,7 @@ Pydantic protected namespace 경고: model_version, model_used 필드명 관련 
 - 실제 기상청/AirKorea API는 아직 연결하지 않았습니다.
 - context matching은 `services/context/demo_context_matcher.py` 기반 demo logic입니다.
 - NLP와 Lead Score는 rule-based baseline입니다.
-- Danawa/Reddit/NaverBlog/YouTube collector는 demo mode에서 검증되었습니다. live mode는 각 플랫폼 API key, session, rate limit 정책에 따라 추가 검증이 필요합니다.
+- Danawa/Reddit/NaverBlog/YouTube collector는 demo mode에서 검증되었습니다.
+- Reddit live mode는 public JSON fallback으로 API key 없이 2건 수집을 확인했습니다.
+- Danawa live mode는 상품 검색까지 확인했으며, 리뷰 전문 수집은 `DANAWA_SESSION_COOKIE`가 필요할 수 있습니다.
 - X/Twitter collector는 아직 없습니다.

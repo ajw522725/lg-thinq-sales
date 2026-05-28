@@ -199,6 +199,13 @@ USE_DEMO_DATA=true PYTHONPATH=/Users/jwa/lg-thinq-sales \
   python -m services.collectors.runner --keyword "LG 공기청정기" --max 2 --no-save
 ```
 
+특정 source만 실행할 수도 있습니다.
+
+```bash
+USE_DEMO_DATA=false PYTHONPATH=/Users/jwa/lg-thinq-sales \
+  python -m services.collectors.runner --source Reddit --keyword "LG air purifier" --max 2 --no-save
+```
+
 확인 기준:
 
 ```text
@@ -218,6 +225,13 @@ cd /Users/jwa/lg-thinq-sales
 source .venv/bin/activate
 PYTHONPATH=/Users/jwa/lg-thinq-sales \
   python scripts/run_collector_ingestion_demo.py --keyword "LG 공기청정기" --max 2 --limit 5 --reset
+```
+
+Reddit live fallback만 DB에 넣을 때는 다음처럼 실행합니다.
+
+```bash
+PYTHONPATH=/Users/jwa/lg-thinq-sales \
+  python scripts/run_collector_ingestion_demo.py --live --source Reddit --keyword "LG air purifier" --max 2 --reset
 ```
 
 API 서버 없이 매핑만 확인할 때는 `--dry-run`을 사용합니다.
@@ -270,6 +284,10 @@ alembic upgrade head: 통과
 AUTO_CREATE_TABLES=false + demo seed: 통과
 AUTO_CREATE_TABLES=false + DB_PIPELINE_PROVIDER=yuna + demo seed: 통과
 collector demo runner: 통과
+Danawa parser smoke test: 통과
+Reddit public JSON fallback smoke test: 통과
+Reddit live fallback 2건 수집: 통과
+Reddit live fallback 2건 -> /api/v1/ingestion/vocs -> DB 저장: 통과
 API smoke test 10개 endpoint: 모두 200
 npm run typecheck: 통과
 npm run lint: 통과
@@ -285,7 +303,9 @@ Pydantic protected namespace 경고: model_version, model_used 필드명 관련 
 
 ## 현재 demo/stub 처리된 기능
 
-- Danawa, Reddit, Naver Blog, YouTube collector 골격과 demo mode는 구현되어 있습니다. 실제 live 수집은 API key/session/cookie 설정과 플랫폼별 제한 대응이 필요합니다.
+- Danawa, Reddit, Naver Blog, YouTube collector 골격과 demo mode는 구현되어 있습니다.
+- Reddit live mode는 PRAW credential이 없을 때 public JSON fallback으로 동작합니다. Reddit 제한 응답 또는 네트워크 차단 시 빈 리스트로 안전 종료합니다.
+- Danawa live mode는 상품 검색까지 가능하지만, 리뷰 전문 수집은 `DANAWA_SESSION_COOKIE`가 필요할 수 있습니다.
 - X/Twitter collector는 아직 구현되지 않았습니다.
 - 실제 OpenAI/Gemini API 호출은 demo mode에서는 하지 않습니다.
 - 실제 기상청, AirKorea, 전기요금, 입주물량 API는 아직 연결하지 않았습니다.
@@ -346,6 +366,5 @@ VOC text
 
 ## 다음 구현 추천 단계
 
-1. Danawa 또는 Reddit live connector를 하나만 우선 안정화합니다.
-2. 외부 데이터 매칭을 기상청/AirKorea demo adapter부터 확장합니다.
-3. LLM gateway를 추가하되 demo mode와 production mode를 명확히 분리합니다.
+1. 외부 데이터 매칭을 기상청/AirKorea demo adapter부터 확장합니다.
+2. LLM gateway를 추가하되 demo mode와 production mode를 명확히 분리합니다.

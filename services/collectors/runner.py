@@ -7,6 +7,8 @@ CollectionRunner — 전체 플랫폼 VOC 수집 + 전처리 + 파일 저장 오
 
 환경변수 USE_DEMO_DATA=true 시 모든 수집기가 demo 데이터를 반환한다.
 """
+from __future__ import annotations
+
 import argparse
 import json
 import os
@@ -46,6 +48,13 @@ _RAW_DIR = _DATA_DIR / "raw"
 _DEMO_DIR = _DATA_DIR / "demo"
 _PROCESSED_DIR = _DATA_DIR / "processed"
 
+_COLLECTOR_FACTORIES = {
+    "Danawa": DanawaCollector,
+    "Reddit": RedditCollector,
+    "NaverBlog": NaverBlogCollector,
+    "YouTube": YouTubeCollector,
+}
+
 
 def _ensure_dirs() -> None:
     for d in [_RAW_DIR, _DEMO_DIR, _PROCESSED_DIR]:
@@ -64,6 +73,7 @@ def run_collection(
     keywords: list[str],
     max_per_source: int = 50,
     save: bool = True,
+    sources: list[str] | None = None,
 ) -> dict:
     """
     모든 플랫폼에서 keywords로 VOC를 수집하고 전처리 후 저장한다.
@@ -72,12 +82,10 @@ def run_collection(
     """
     _ensure_dirs()
 
-    collectors = [
-        DanawaCollector(),
-        RedditCollector(),
-        NaverBlogCollector(),
-        YouTubeCollector(),
-    ]
+    selected_sources = sources or list(_COLLECTOR_FACTORIES)
+    collectors = [_COLLECTOR_FACTORIES[source]() for source in selected_sources if source in _COLLECTOR_FACTORIES]
+    if not collectors:
+        raise ValueError(f"지원하지 않는 source 목록입니다: {sources}")
 
     is_demo = os.getenv("USE_DEMO_DATA", "true").lower() == "true"
     run_ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
@@ -130,6 +138,7 @@ def run_collection(
         "run_ts": run_ts,
         "mode": mode_label,
         "keywords": keywords,
+        "sources": [collector.source_name for collector in collectors],
         "source_stats": source_stats,
         "preprocess_stats": preprocess_stats,
         "raw_count": len(all_raw),
@@ -145,6 +154,7 @@ def _print_summary(stats: dict) -> None:
     print(f"  수집 완료 — {stats['mode'].upper()} 모드  {stats['run_ts']}")
     print("=" * 55)
     print(f"  키워드: {', '.join(stats['keywords'])}")
+    print(f"  소스: {', '.join(stats.get('sources', []))}")
     print(f"  총 수집 (raw)    : {stats['raw_count']}건")
     print(f"  전처리 통과      : {stats['processed_count']}건")
     print()
@@ -162,6 +172,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="LG ThinQ-Sales VOC 수집 runner")
     parser.add_argument("--keyword", type=str, help="단일 키워드 수집")
     parser.add_argument("--all-keywords", action="store_true", help="기본 키워드 전체 수집")
+    parser.add_argument("--source", action="append", choices=sorted(_COLLECTOR_FACTORIES), help="수집 source. 여러 번 지정 가능")
     parser.add_argument("--max", type=int, default=50, help="소스당 최대 수집 건수")
     parser.add_argument("--no-save", action="store_true", help="파일 저장 생략")
     args = parser.parse_args()
@@ -173,5 +184,5 @@ if __name__ == "__main__":
     else:
         keywords = DEFAULT_KEYWORDS[:2]  # 기본: 에어컨 + 공기청정기
 
-    result = run_collection(keywords, max_per_source=args.max, save=not args.no_save)
+    result = run_collection(keywords, max_per_source=args.max, save=not args.no_save, sources=args.source)
     _print_summary(result["stats"])

@@ -102,6 +102,13 @@ PYTHONPATH=/Users/jwa/lg-thinq-sales \
 
 API 서버가 꺼져 있을 때 매핑만 확인하려면 `--dry-run`을 붙입니다.
 
+Reddit live fallback만 DB에 넣을 때는 다음처럼 실행합니다.
+
+```bash
+PYTHONPATH=/Users/jwa/lg-thinq-sales \
+  python scripts/run_collector_ingestion_demo.py --live --source Reddit --keyword "LG air purifier" --max 2 --reset
+```
+
 ## Endpoint
 
 - `GET /api/v1/health`
@@ -178,4 +185,7 @@ AUTO_CREATE_TABLES=false + DB_PIPELINE_PROVIDER=yuna + demo seed: 통과
 API smoke test: health, seed, dashboard, vocs, voc stats, lead scores, insights, nlp, pipeline, demo run 모두 200
 collector demo runner: 통과
 collector demo output -> ingestion endpoint -> DB 저장: 통과
+Danawa parser smoke test: 통과
+Reddit public JSON fallback smoke test: 통과
+Reddit live fallback 2건 -> ingestion endpoint -> DB 저장: 통과
 ```

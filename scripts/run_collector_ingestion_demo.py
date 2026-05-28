@@ -39,6 +39,7 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--keyword", action="append", help="수집 키워드. 여러 번 지정 가능")
     parser.add_argument("--all-keywords", action="store_true", help="기본 키워드 전체 수집")
+    parser.add_argument("--source", action="append", help="수집 source. 예: Danawa, Reddit, NaverBlog, YouTube")
     parser.add_argument("--max", type=int, default=2, help="소스당 최대 수집 건수")
     parser.add_argument("--limit", type=int, default=0, help="전송할 최대 VOC 수. 0이면 전체 전송")
     parser.add_argument("--reset", action="store_true", help="ingestion 전 기존 pipeline 데이터를 삭제")
@@ -141,7 +142,7 @@ def main() -> int:
     os.environ["USE_DEMO_DATA"] = "false" if args.live else "true"
 
     keywords = _select_keywords(args)
-    result = run_collection(keywords, max_per_source=args.max, save=args.save)
+    result = run_collection(keywords, max_per_source=args.max, save=args.save, sources=args.source)
     payload = _map_raw_to_ingestion(result["raw"])
     if args.limit > 0:
         payload = payload[: args.limit]
@@ -149,6 +150,7 @@ def main() -> int:
     print("\n=== Collector ingestion demo ===")
     print(f"mode              : {'live' if args.live else 'demo'}")
     print(f"keywords          : {', '.join(keywords)}")
+    print(f"sources           : {', '.join(result['stats'].get('sources', []))}")
     print(f"collector raw     : {len(result['raw'])}")
     print(f"ingestion payload : {len(payload)}")
 

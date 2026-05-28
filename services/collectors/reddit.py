@@ -13,6 +13,7 @@ import os
 from datetime import datetime, timezone
 from typing import Optional
 
+import requests
 from dotenv import load_dotenv
 
 from services.collectors.base import BaseCollector
@@ -40,7 +41,7 @@ _COMPETITOR_KEYWORDS = [
 
 
 class RedditCollector(BaseCollector):
-    """PRAW를 이용한 Reddit VOC 수집기."""
+    """PRAW 또는 public JSON fallback을 이용한 Reddit VOC 수집기."""
 
     RATE_LIMIT_MIN: float = 1.5
     RATE_LIMIT_MAX: float = 3.0
@@ -48,8 +49,21 @@ class RedditCollector(BaseCollector):
     def __init__(self):
         super().__init__(source_name="Reddit")
         self._reddit = None  # lazy init — LIVE 모드에서만 생성
+        self._timeout: float = float(os.getenv("REDDIT_REQUEST_TIMEOUT", "15"))
+        self._session = requests.Session()
+        self._session.headers.update(
+            {
+                "User-Agent": os.getenv(
+                    "REDDIT_USER_AGENT", "lg-thinq-sales/1.0 by wldnjsrla085"
+                ),
+                "Accept": "application/json",
+            }
+        )
 
     # ── LIVE 수집 ──────────────────────────────────────────────────────────────
+
+    def _has_praw_credentials(self) -> bool:
+        return bool(os.getenv("REDDIT_CLIENT_ID") and os.getenv("REDDIT_CLIENT_SECRET"))
 
     def _get_reddit_client(self):
         """PRAW 클라이언트를 lazy하게 초기화한다."""
@@ -69,10 +83,15 @@ class RedditCollector(BaseCollector):
         Reddit 전체 검색 + 타깃 서브레딧에서 keyword로 포스트를 수집한다.
 
         전략:
-        1. reddit.subreddit("all").search(keyword) — 최신 글 우선
-        2. 타깃 서브레딧 top posts 보조 수집
+        1. PRAW credentials가 있으면 reddit.subreddit("all").search(keyword)
+        2. credentials가 없으면 public JSON search endpoint fallback
+        3. 타깃 서브레딧 검색으로 부족분 보완
         중복은 external_id(post id) 기준으로 제거한다.
         """
+        if not self._has_praw_credentials():
+            self.logger.info("Reddit API credential 없음 — public JSON fallback 사용")
+            return self._collect_with_public_json(keyword, max_items)
+
         reddit = self._get_reddit_client()
         seen_ids: set[str] = set()
         results: list[dict] = []
@@ -115,6 +134,54 @@ class RedditCollector(BaseCollector):
 
         return results
 
+    def _collect_with_public_json(self, keyword: str, max_items: int) -> list[dict]:
+        """API key 없이 public JSON endpoint로 Reddit 포스트를 수집한다."""
+        seen_ids: set[str] = set()
+        results: list[dict] = []
+
+        endpoints = [("all", "https://www.reddit.com/search.json", {"q": keyword, "sort": "new", "t": "month"})]
+        endpoints.extend(
+            (
+                sub_name,
+                f"https://www.reddit.com/r/{sub_name}/search.json",
+                {"q": keyword, "restrict_sr": "1", "sort": "relevance", "t": "year"},
+            )
+            for sub_name in _TARGET_SUBREDDITS
+        )
+
+        for source_name, url, params in endpoints:
+            if len(results) >= max_items:
+                break
+            try:
+                self.rate_limiter.wait()
+                response = self._session.get(
+                    url,
+                    params={**params, "limit": max_items},
+                    timeout=self._timeout,
+                )
+                if response.status_code in {403, 429}:
+                    self.logger.warning(f"Reddit public JSON 제한 응답 source={source_name} status={response.status_code}")
+                    continue
+                response.raise_for_status()
+                children = response.json().get("data", {}).get("children", [])
+            except Exception as exc:
+                self.logger.warning(f"Reddit public JSON 수집 실패 source={source_name}: {exc}")
+                continue
+
+            for child in children:
+                raw = child.get("data", {})
+                post_id = str(raw.get("id") or "").strip()
+                if not post_id or post_id in seen_ids:
+                    continue
+                seen_ids.add(post_id)
+                doc = self._json_post_to_doc(raw, keyword)
+                if doc:
+                    results.append(doc)
+                if len(results) >= max_items:
+                    break
+
+        return results[:max_items]
+
     def _post_to_doc(self, post, keyword: str) -> Optional[dict]:
         """PRAW Submission 객체를 표준 RawDocument 포맷으로 변환한다."""
         content = post.selftext or post.title
@@ -141,6 +208,40 @@ class RedditCollector(BaseCollector):
                 "upvote_ratio": post.upvote_ratio,
                 "flair": post.link_flair_text,
                 "competitor_mentions": competitors,
+            },
+        )
+
+    def _json_post_to_doc(self, raw: dict, keyword: str) -> Optional[dict]:
+        """Reddit public JSON post dict를 표준 RawDocument 포맷으로 변환한다."""
+        title = str(raw.get("title") or "").strip()
+        selftext = str(raw.get("selftext") or "").strip()
+        content = selftext or title
+        if len(content) < 20:
+            return None
+
+        lower = f"{title} {content}".lower()
+        competitors = [c for c in _COMPETITOR_KEYWORDS if c in lower]
+        permalink = str(raw.get("permalink") or "")
+        url = f"https://www.reddit.com{permalink}" if permalink.startswith("/") else str(raw.get("url") or "")
+        created_utc = float(raw.get("created_utc") or 0)
+        published_at = datetime.fromtimestamp(created_utc, tz=timezone.utc) if created_utc else datetime.now(timezone.utc)
+
+        return self.to_raw_document(
+            content=content,
+            title=title or "Untitled Reddit VOC",
+            url=url or "https://www.reddit.com",
+            author=str(raw.get("author") or "") or None,
+            published_at=published_at,
+            external_id=str(raw.get("id")),
+            product_keyword=keyword,
+            platform_meta={
+                "subreddit": raw.get("subreddit"),
+                "score": int(raw.get("score") or 0),
+                "num_comments": int(raw.get("num_comments") or 0),
+                "upvote_ratio": float(raw.get("upvote_ratio") or 0),
+                "flair": raw.get("link_flair_text"),
+                "competitor_mentions": competitors,
+                "collection_method": "public_json",
             },
         )
 

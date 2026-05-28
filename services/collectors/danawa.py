@@ -22,6 +22,7 @@ DanawaCollector — 다나와 가전 리뷰 수집기.
 """
 import os
 import re
+from hashlib import sha256
 from datetime import datetime, timezone
 from typing import Optional
 from urllib.parse import urlencode, urlparse, parse_qs
@@ -66,6 +67,7 @@ class DanawaCollector(BaseCollector):
         self._use_playwright: bool = (
             os.getenv("DANAWA_USE_PLAYWRIGHT", "false").lower() == "true"
         )
+        self._timeout: float = float(os.getenv("DANAWA_REQUEST_TIMEOUT", "15"))
 
     # ── LIVE 수집 ──────────────────────────────────────────────────────────────
 
@@ -115,7 +117,7 @@ class DanawaCollector(BaseCollector):
                 r = self._session.get(
                     _SEARCH_URL,
                     params={"query": keyword, "tab": "main", "page": page},
-                    timeout=15,
+                    timeout=self._timeout,
                 )
                 r.raise_for_status()
             except Exception as exc:
@@ -142,17 +144,15 @@ class DanawaCollector(BaseCollector):
 
     def _parse_product_item(self, item, keyword: str) -> Optional[dict]:
         """검색 결과 li 항목에서 상품 메타데이터를 추출한다."""
-        pcode_raw = item.get("id", "")
-        if not pcode_raw.startswith("productItem"):
-            return None
-        pcode = pcode_raw.replace("productItem", "").strip()
-        if not pcode.isdigit():
-            return None
-
         name_el = item.select_one("p.prod_name a")
         if not name_el:
             return None
         name = name_el.get_text(strip=True)
+        url = name_el.get("href", "")
+
+        pcode = self._extract_pcode(item.get("id", ""), url)
+        if not pcode:
+            return None
 
         price_el = item.select_one(f"input[id^=min_price_]")
         price = price_el.get("value") if price_el else None
@@ -164,22 +164,17 @@ class DanawaCollector(BaseCollector):
         spec = spec_el.get_text(separator=" / ", strip=True) if spec_el else ""
 
         star_el = item.select_one(".text__score")
-        rating = float(star_el.get_text(strip=True)) if star_el else None
+        rating = self._parse_float(star_el.get_text(strip=True)) if star_el else None
 
         review_num_el = item.select_one(".text__number")
-        review_count = 0
-        if review_num_el:
-            raw_num = re.sub(r"[^\d]", "", review_num_el.get_text(strip=True))
-            review_count = int(raw_num) if raw_num else 0
-
-        url = name_el.get("href", "")
+        review_count = self._parse_int(review_num_el.get_text(strip=True)) if review_num_el else 0
         if not url.startswith("http"):
             url = _PRODUCT_BASE_URL + "?" + urlencode({"pcode": pcode})
 
         return {
             "pcode": pcode,
             "name": name,
-            "price": int(price) if price and price.isdigit() else None,
+            "price": self._parse_int(price) if price else None,
             "category_raw": category_raw,
             "spec": spec,
             "rating": rating,
@@ -208,7 +203,7 @@ class DanawaCollector(BaseCollector):
                         "pageType": "list",
                     },
                     headers={"Referer": f"{_PRODUCT_BASE_URL}?pcode={pcode}"},
-                    timeout=15,
+                    timeout=self._timeout,
                 )
                 r.raise_for_status()
             except Exception as exc:
@@ -236,7 +231,7 @@ class DanawaCollector(BaseCollector):
 
     def _parse_review_item(self, item, product: dict) -> Optional[dict]:
         """리뷰 li 항목을 표준 RawDocument 포맷으로 변환한다."""
-        content_el = item.select_one(".review_cont, .cont, [class*='content']")
+        content_el = item.select_one(".review_cont, .cont, .atc, .txt, [class*='content']")
         content = content_el.get_text(strip=True) if content_el else item.get_text(strip=True)
         if len(content) < 15:
             return None
@@ -246,22 +241,22 @@ class DanawaCollector(BaseCollector):
 
         date_el = item.select_one(".date, .reg_date, [class*='date']")
         date_str = date_el.get_text(strip=True) if date_el else None
-        published_at = self._parse_date(date_str)
+        published_at = self._parse_date(date_str) or datetime.now(timezone.utc)
 
         star_el = item.select_one(".star_score, .score, [class*='star']")
         star_score = None
         if star_el:
-            m = re.search(r"(\d+\.?\d*)", star_el.get_text())
-            star_score = float(m.group(1)) if m else None
+            star_score = self._parse_float(star_el.get_text())
 
-        review_id_el = item.get("id") or item.get("data-seq") or ""
+        review_id = item.get("id") or item.get("data-seq") or item.get("data-review-seq") or ""
+        external_id = str(review_id).strip() if review_id else self._stable_review_id(product, content)
 
         doc = self.to_raw_document(
             content=content,
             title=title,
             url=product["url"],
             published_at=published_at,
-            external_id=str(review_id_el) if review_id_el else None,
+            external_id=external_id,
             product_keyword=product["keyword"],
             platform_meta={
                 "pcode": product["pcode"],
@@ -275,6 +270,33 @@ class DanawaCollector(BaseCollector):
             },
         )
         return self._enrich_category(doc, product.get("category_raw", ""))
+
+    @staticmethod
+    def _extract_pcode(item_id: str, url: str) -> Optional[str]:
+        """검색 결과 id 또는 URL에서 pcode를 추출한다."""
+        if item_id.startswith("productItem"):
+            pcode = item_id.replace("productItem", "").strip()
+            if pcode.isdigit():
+                return pcode
+        query = parse_qs(urlparse(url).query)
+        pcode = query.get("pcode", [""])[0]
+        return pcode if pcode.isdigit() else None
+
+    @staticmethod
+    def _parse_int(value: str) -> int:
+        raw = re.sub(r"[^\d]", "", value or "")
+        return int(raw) if raw else 0
+
+    @staticmethod
+    def _parse_float(value: str) -> Optional[float]:
+        match = re.search(r"(\d+(?:\.\d+)?)", value or "")
+        return float(match.group(1)) if match else None
+
+    @staticmethod
+    def _stable_review_id(product: dict, content: str) -> str:
+        """리뷰 DOM에 id가 없을 때 중복 방지를 위한 안정 ID를 만든다."""
+        digest = sha256(f"{product.get('pcode', '')}:{content}".encode("utf-8")).hexdigest()[:16]
+        return f"danawa-{product.get('pcode', 'unknown')}-{digest}"
 
     # 다나와 카테고리 raw 값 → 표준 제품군 매핑
     _CATEGORY_RAW_MAP: dict[str, str] = {
